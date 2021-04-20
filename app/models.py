@@ -13,7 +13,7 @@ class Cars(db.Model):
     year = db.Column(db.Text)
     transmission = db.Column(db.Text)
     car_type = db.Column(db.Text)
-    price = db.Column(db.Float,2)
+    price = db.Column(db.Float)
     photo = db.Column(db.Text)
 
     def __init__(self, user_id, description, make, model, colour, year, transmission, car_type, price, photo):
@@ -50,7 +50,7 @@ class Favourites(db.Model):
     __tablename__ = 'Favourites'
 
     id = db.Column(db.Integer, primary_key=True)
-    car_id = df.Column(db.Integer)
+    car_id = db.Column(db.Integer)
     user_id = db.Column(db.Integer)
 
     def __init__(self, car_id, user_id):
