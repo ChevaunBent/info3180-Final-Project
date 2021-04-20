@@ -13,7 +13,7 @@ class Cars(db.Model):
     year = db.Column(db.Text)
     transmission = db.Column(db.Text)
     car_type = db.Column(db.Text)
-    price = db.Column(db.Text)
+    price = db.Column(db.Float,2)
     photo = db.Column(db.Text)
 
     def __init__(self, user_id, description, make, model, colour, year, transmission, car_type, price, photo):
@@ -27,8 +27,6 @@ class Cars(db.Model):
         self.car_type = car_type
         self.price = price
         self.photo = photo
-        self.caption = caption
-        self.created_on = created_on
 
     def is_authenticated(self):
         return True
