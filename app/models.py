@@ -44,7 +44,7 @@ class Cars(db.Model):
             return str(self.id)  # python 3 support
 
     def __repr__(self):
-        return '<Post %r>' % (self.id)
+        return '<Cars %r>' % (self.id)
 
 class Favourites(db.Model):
     __tablename__ = 'Favourites'
@@ -73,7 +73,7 @@ class Favourites(db.Model):
             return str(self.id)  # python 3 support
 
     def __repr__(self):
-        return '<Post %r>' % (self.id)
+        return '<Favourites %r>' % (self.id)
 
 class Users(db.Model):
     __tablename__ = 'users'

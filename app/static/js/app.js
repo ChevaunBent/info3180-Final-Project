@@ -5,8 +5,8 @@ const app = Vue.createApp({
       welcome: 'Hello World! Welcome to INFO3180-Final Project',
       components: {
         'home': Home,
-        
-        }
+
+      }
     }
   },
 });
@@ -17,7 +17,7 @@ app.component('app-header', {
     /*html*/
     `
       <header>
-          <nav class="navbar navbar-expand-lg navbar-dark bg-primary fixed-top">
+          <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
             <a class="navbar-brand" href="#">INFO3180-Final Project</a>
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
               <span class="navbar-toggler-icon"></span>
@@ -35,7 +35,7 @@ app.component('app-header', {
             <router-link to="/explore" class="nav-link">Explore</router-link>
             </li>
             <li class="nav-item">
-            <router-link to="/newcar" class="nav-link">Add Post</router-link>
+            <router-link to="/newcar" class="nav-link">Add Car</router-link>
             </li>
            </ul>
             </div>
@@ -49,20 +49,54 @@ app.component('app-header', {
 
 const Home = {
   name: 'Home',
-  template: 
-  /*html*/
-  `
+  template:
+    /*html*/
+    `
   <div class="home">
-  <img class="card" style="width: 18rem;" src="/static/images/logo.png" alt="Car Logo">
-  <h1>{{ welcome }}</h1>
+    <div class="container">
+      <div class="row justify-content-center" style="box-shadow: 2px 2px 10px grey;">
+        <div class="col-md-6 card-body justify-content-center">
+          <h1>{{Header}}</h1>
+          <p>{{welcome}}</p>
+          <div>
+            <router-link class="btn btn-success col-md-3" to="/register">Register</router-link>
+            <router-link class="btn btn-primary col-md-3" style="margin: 10px" to="/login">Login</router-link>
+          </div>
+        </div>
+        <div class="col-md-6 landing-container-child float-clear">
+          <div class= "card">
+            <img class="card-img-top" :src="image" alt="Image of a car" style="margin: 0 auto;">
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
   `,
   data() {
     return {
-      welcome: 'Hello World! Welcome to our Final Project Implementation'
+      Header: "Buy and Sell Cars Online",
+      welcome: "United Auto Sales provides the fastest, easiest and most user friendly way to buy or sell cars online. Find a great price on the vehicle you want",
+      image: "static/images/home.jpeg"
     }
   }
 };
+
+const login = {
+  name: 'login',
+  template: 
+  /*html*/
+      `
+      <div class="register">
+      <h1>{{ welcome }}</h1>
+      </div>
+      `,
+    data() {
+      return {
+        welcome: 'This will be for registration'
+      }
+    }
+  };
+
 
 const Register = {
   name: 'Register',
@@ -73,44 +107,44 @@ const Register = {
     <h1>{{ welcome }}</h1>
     </div>
     `,
-    data() {
-      return {
-        welcome: 'This will be for registration'
-      }
+  data() {
+    return {
+      welcome: 'This will be for registration'
     }
-  };
+  }
+};
 
-  const Explore = {
-    name: 'Explore',
-    template:
-      /*html*/
-      `
+const Explore = {
+  name: 'Explore',
+  template:
+    /*html*/
+    `
       <div class="explore">
       <h1>{{ welcome }}</h1>
       </div>
       `,
-      data() {
-        return {
-          welcome: 'This will be for Exploring/Viewing all posts by users'
-        }
-      }
-    };
+  data() {
+    return {
+      welcome: 'This will be for Exploring/Viewing all posts by users'
+    }
+  }
+};
 
-    const NewCar = {
-      name: 'newcar',
-      template:
-        /*html*/
-        `
+const NewCar = {
+  name: 'newcar',
+  template:
+    /*html*/
+    `
         <div class="newcar">
         <h1>{{ welcome }}</h1>
         </div>
         `,
-        data() {
-          return {
-            welcome: 'This will be for Adding a new Car'
-          }
-        }
-      };
+  data() {
+    return {
+      welcome: 'This will be for Adding a new Car'
+    }
+  }
+};
 
 
 app.component('app-footer', {
@@ -129,16 +163,33 @@ app.component('app-footer', {
   }
 })
 
+const NotFound = {
+  name: 'NotFound',
+  template: 
+  /*html*/
+  `
+  <div>
+      <h1>404 - Not Found</h1>
+  </div>
+  `,
+  data() {
+      return {}
+  }
+};
+
 // Define Routes
 const router = VueRouter.createRouter({
   history: VueRouter.createWebHistory(),
   routes: [
-  { path: '/', component: Home },
-  { path: '/register', component: Register },
-  { path: '/explore', component: Explore },
-  { path: '/newcar', component: NewCar }
+    { path: '/', component: Home },
+    { path: '/register', component: Register },
+    { path: '/explore', component: Explore },
+    { path: '/newcar', component: NewCar },
+    { path: '/login', component: login },
+    // This is a catch all route in case none of the above matches
+    { path: '/:pathMatch(.*)*', name: 'NotFound', component: NotFound }
   ]
- });
+});
 
 app.use(router)
 app.mount('#app');

@@ -25,6 +25,10 @@ def index(path):
     """
     return app.send_static_file('index.html')
 
+@login_manager.user_loader
+def load_user(id):
+    return Users.query.get(int(id))
+
 
 ###
 # The functions below should be applicable to all Flask apps.
