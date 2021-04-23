@@ -6,6 +6,7 @@ Flask-Migrate==2.7.0
 Flask-Script==2.0.6
 Flask-SQLAlchemy==2.5.1
 Flask-WTF==0.14.3
+email_validator
 greenlet==1.0.0
 gunicorn==20.0.4
 itsdangerous==1.1.0
