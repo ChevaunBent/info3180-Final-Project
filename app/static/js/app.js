@@ -96,7 +96,7 @@ const login = {
       `,
     data() {
       return {
-        welcome: 'This will be for registration'
+        welcome: 'This will be for login'
       }
     }
   };
