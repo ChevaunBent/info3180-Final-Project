@@ -8,10 +8,12 @@ This file creates your application.
 import os, datetime
 from app import app, db, login_manager
 from flask import render_template, request, redirect, url_for, flash, jsonify
+from flask_login import login_user, logout_user, current_user, login_required
 from .forms import RegisterUser, LoginForm
-from app.models import Cars, Favourites, Users
+from .models import UserProfile
 from werkzeug.security import check_password_hash
 from werkzeug.utils import secure_filename
+import jwt
 
 
 ###
@@ -29,10 +31,6 @@ def index(path):
     Also we will render the initial webpage and then let VueJS take control.
     """
     return render_template('index.html')
-
-@login_manager.user_loader
-def load_user(id):
-    return RegisterUser.query.get(int(id))
 
 @app.route('/api/register', methods=['POST'])
 def register():
@@ -53,10 +51,10 @@ def register():
             password = registerUser.password.data
             date = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             
-            username2 = Users.query.filter_by(username=username).first()
-            email2 =Users.query.filter_by(email=email).first()
+            username2 = UserProfile.query.filter_by(username=username).first()
+            email2 =UserProfile.query.filter_by(email=email).first()
             
-            user = Users(username, password,name,email,location,biography,filename,date)
+            user = UserProfile(username, password,name,email,location,biography,filename,date)
             try:
                 if username2 is None and email2 is None:
                     db.session.add(user)
@@ -75,12 +73,39 @@ def register():
                 return jsonify(errors=["Some Internal Error Occurred, Please Try Again"])
         else:
             return jsonify(errors = form_errors(registerUser))
-       
+        
+@app.route("/api/auth/login", methods=["POST"])
+def login():
+    form = LoginForm()
+    if request.method == "POST":
+        if form.validate_on_submit():
+        # change this to actually validate the entire form submission
+        # and not just one field
+            username = form.username.data
+            password = form.password.data
+            try:
+                # Get the username and password values from the form.
+                user = UserProfile.query.filter_by(username=username).first()
 
-###
-# The functions below should be applicable to all Flask apps.
-###
-
+                # using your model, query database for a user based on the username
+                # and password submitted. Remember you need to compare the password hash.
+                # You will need to import the appropriate function to do so.
+                # Then store the result of that query to a `user` variable so it can be
+                # passed to the login_user() method below.
+                if user != None and check_password_hash(user.password,password):
+                    #prepare user related info
+                    payload = {'user': user.username}
+                    jwt_token = str(jwt.encode(payload,app.config['SECRET_KEY'],algorithm = "HS256"))
+                    response = {'message': 'User successfully logged in','token':jwt_token, "user_id": user.id}
+                    return jsonify(response)
+                #If username or password is incorrect
+                return jsonify(errors=["Username or password is incorrect"])
+            except Exception as exc: 
+                print (exc)
+                return jsonify(errors=["Some Internal Error Occurred Here, Please Try Again"])
+        else:
+            return jsonify(errors = form_errors(form))
+        
 def form_errors(form):
     error_messages = []
     """Collects form errors"""
@@ -94,6 +119,24 @@ def form_errors(form):
 
     return error_messages
 
+@app.route('/api/auth/logout', methods = ['POST'])
+def logout():
+    return jsonify(message= "User successfully logged out.")
+
+
+
+# user_loader callback. This callback is used to reload the user object from
+# the user ID stored in the session
+@login_manager.user_loader
+def load_user(id):
+    return UserProfile.query.get(int(id))
+
+
+###
+# The functions below should be applicable to all Flask apps.
+###
+
+
 @app.route('/<file_name>.txt')
 def send_text_file(file_name):
     """Send your static text file."""
@@ -105,8 +148,7 @@ def send_text_file(file_name):
 def add_header(response):
     """
     Add headers to both force latest IE rendering engine or Chrome Frame,
-    and also tell the browser not to cache the rendered page. If we wanted
-    to we could change max-age to 600 seconds which would be 10 minutes.
+    and also to cache the rendered page for 10 minutes.
     """
     response.headers['X-UA-Compatible'] = 'IE=Edge,chrome=1'
     response.headers['Cache-Control'] = 'public, max-age=0'

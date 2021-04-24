@@ -1,3 +1,5 @@
+/* Add your Application JavaScript */
+
 const register = ('register', {
     name: 'register',
     template:
@@ -105,23 +107,127 @@ const register = ('register', {
     }
 });
 
-const login = {
+const login = ('login', {
     name: 'login',
     template:
     /*html*/
         `
-      <div class="register">
-      <h1>{{ welcome }}</h1>
-      </div>
-      `,
+        <div class="login-form center-block">
+            <h2>Please Log in</h2>
+            <form @submit.prevent='login' id = 'login' method = 'POST' enctype="multipart/form-data">
+            <div class="col-12 form-group">
+                <label for = 'username'> Username </label>
+                <input type="text" name="username" id="username" class="form-control mb-2 mr-sm-2" placeholder="Enter Username here">
+            </div>
+            <div class="col-12 form-group">
+                <label for = 'password'> Password </label>
+                <input type="password" name="password" id="password" class="form-control mb-2 mr-sm-2">
+            </div>
+            <button type="submit" name="submit" class="btn btn-primary btn-block">Log in</button>
+            </form>
+        <!--Displays Messages-->
+        <div v-if='hasMessage'>
+            <div v-if="!hasError ">
+                <div class="alert alert-success" >
+                        {{ message }}
+                </div>
+            </div>
+            <div v-else >
+                <ul class="alert alert-danger">
+                    <li v-for="error in message">
+                        {{ error }}
+                    </li>
+                </ul>
+            </div>
+        </div>
+        </div>    
+    `,
     data() {
         return {
-            welcome: 'This will be for login'
+            hasMessage: false,
+            hasError: false
+        }
+    },
+    methods: {
+        login: function() {
+            let self = this;
+            let login = document.getElementById('login');
+            let form_data = new FormData(login);
+
+            fetch('/api/auth/login', {
+                    method: 'POST',
+                    body: form_data,
+                    headers: {
+                        'X-CSRFToken': token
+                    },
+                    credentials: 'same-origin'
+                })
+                .then(function(response) {
+                    return response.json();
+                })
+                .then(function(jsonResponse) {
+                    // display messages
+                    self.hasMessage = true;
+                    //Error Message
+                    if (jsonResponse.hasOwnProperty("errors")) {
+                        self.hasError = true;
+                        self.message = jsonResponse.errors;
+                        console.log(jsonResponse.errors);
+                        //Success Message
+                    } else if (jsonResponse.hasOwnProperty("message") && jsonResponse.hasOwnProperty("token")) {
+                        self.hasError = false;
+                        self.message = jsonResponse.message;
+                        //Stores information on current user
+                        curuser = { "token": jsonResponse.token, id: jsonResponse.user_id };
+                        localStorage.current_user = JSON.stringify(curuser);
+                        setTimeout(function() { router.push('/'); }, 2000); //Modify to redirect to where you need it to go after log in
+                    }
+                })
+                .catch(function(error) {
+                    console.log(error);
+                });
+        }
+    }
+});
+
+const logout = {
+    name: "Logout",
+    template: `
+  <div style="margin-top: 10rem">
+  </div>`,
+    created: function() {
+        let self = this;
+
+        fetch("/api/auth/logout", {
+                method: "POST",
+                headers: {
+                    'X-CSRFToken': token
+                },
+                credentials: 'same-origin'
+            })
+            .then(function(response) {
+                return response.json();
+            })
+            .then(function(jsonResponse) {
+                hasMessage = true;
+                localStorage.removeItem("current_user");
+                self.message = jsonResponse.message;
+                router.push('/login');
+                console.log(jsonResponse.message);
+            })
+            .catch(function(error) {
+                console.log(error);
+            });
+    },
+    data() {
+        return {
+            hasMessage: false
         }
     }
 };
 
-/* Add your Application JavaScript */
+
+// Instantiate our main Vue Instance
 const app = Vue.createApp({
     data() {
         return {
@@ -130,7 +236,8 @@ const app = Vue.createApp({
     },
     components: {
         'register': register,
-        'login': login
+        'login': login,
+        'logout': logout
     }
 });
 
@@ -139,151 +246,96 @@ app.component('app-header', {
     template:
     /*html*/
         `
-    <header>
-      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
-        <a class="navbar-brand" href="#">INFO3180-Final Project</a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-          <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarSupportedContent">
-          <ul class="navbar-nav mr-auto">
-            <li class="nav-item active">
-              <router-link to="/" class="nav-link">Home</router-link>
-            </li>
-            <li class="nav-item">
-              <router-link to="/explore" class="nav-link">Explore</router-link>
-            </li>
-            <li class="nav-item">
-              <router-link to="/newcar" class="nav-link">Add Car</router-link>
-            </li>
-          </ul>
-          <ul class="navbar-nav">
-            <li class="nav-item">
-              <router-link to="/register" class="nav-link">Register</router-link>
-            </li>
-            <li class="nav-item">
-              <router-link to="/login" class="nav-link">Login</router-link>
-            </li>
-          </ul>
-        </div>
-      </nav>
-    </header>    
-  `,
+        <nav class="navbar navbar-expand-lg navbar-dark bg-primary fixed-top">
+            <a class="navbar-brand" href="#">Lab 7</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+    
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav mr-auto" v-if="auth">
+                    <li class="nav-item">
+                        <router-link class="nav-link" to="/logout/">Logout</router-link>
+                    </li>
+                </ul>
+                <ul class="navbar-nav mr-auto" v-else>
+                    <li class="nav-item active">
+                        <router-link class="nav-link" to="/">Home <span class="sr-only">(current)</span></router-link>
+                    </li>
+                    <li class="nav-item active">
+                        <router-link class="nav-link" to="/register/">Register </router-link>
+                    </li>
+                    <li class="nav-item">
+                        <router-link to="/login/" class="nav-link">Login</router-link>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+    `,
     data: function() {
-        return {};
+        return {
+            auth: localStorage.hasOwnProperty("current_user")
+        };
     }
 });
-
-const Home = {
-    name: 'Home',
-    template:
-    /*html*/
-        `
-  <div class="home">
-    <div class="container">
-      <div class="row justify-content-center" style="box-shadow: 2px 2px 10px grey;">
-        <div class="col-md-6 card-body justify-content-center">
-          <h1>{{Header}}</h1>
-          <p>{{welcome}}</p>
-          <div>
-            <router-link class="btn btn-success col-md-3" to="/register">Register</router-link>
-            <router-link class="btn btn-primary col-md-3" style="margin: 10px" to="/login">Login</router-link>
-          </div>
-        </div>
-        <div class="col-md-6 landing-container-child float-clear">
-          <div class= "card">
-            <img class="card-img-top" :src="image" alt="Image of a car" style="margin: 0 auto;">
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-  `,
-    data() {
-        return {
-            Header: "Buy and Sell Cars Online",
-            welcome: "United Auto Sales provides the fastest, easiest and most user friendly way to buy or sell cars online. Find a great price on the vehicle you want",
-            image: "static/images/home.jpeg"
-        }
-    }
-};
-
-const Explore = {
-    name: 'Explore',
-    template:
-    /*html*/
-        `
-      <div class="explore">
-      <h1>{{ welcome }}</h1>
-      </div>
-      `,
-    data() {
-        return {
-            welcome: 'This will be for Exploring/Viewing all posts by users'
-        }
-    }
-};
-
-const NewCar = {
-    name: 'newcar',
-    template:
-    /*html*/
-        `
-        <div class="newcar">
-        <h1>{{ welcome }}</h1>
-        </div>
-        `,
-    data() {
-        return {
-            welcome: 'This will be for Adding a new Car'
-        }
-    }
-};
-
 
 app.component('app-footer', {
     name: 'AppFooter',
     template: `
-      <footer>
-          <div class="container">
-              <p>Copyright &copy {{ year }} Flask Inc.</p>
-          </div>
-      </footer>
-  `,
-    data: function() {
+    <footer>
+        <div class="container">
+            <p>Copyright &copy; {{ year }} Flask Inc.</p>
+        </div>
+    </footer>
+    `,
+    data() {
         return {
             year: (new Date).getFullYear()
         }
     }
-})
+});
+
+const Home = ("Home", {
+    name: 'Home',
+    template: `
+    <div class="jumbotron">
+        <h1>Lab 7</h1>
+        <p class="lead">In this lab we will demonstrate VueJS working with Forms and Form Validation from Flask-WTF.</p>
+    </div>
+    `,
+    data() {
+        return {}
+    }
+});
 
 const NotFound = {
     name: 'NotFound',
-    template:
-    /*html*/
-        `
-  <div>
-      <h1>404 - Not Found</h1>
-  </div>
-  `,
+    template: `
+    <div>
+        <h1>404 - Not Found</h1>
+    </div>
+    `,
     data() {
         return {}
     }
 };
 
 // Define Routes
+const routes = [
+    { path: "/", component: Home },
+    // Put other routes here
+    { path: "/register/", component: register },
+    { path: "/login/", component: login },
+    { path: "/logout/", component: logout },
+    // This is a catch all route in case none of the above matches
+    { path: '/:pathMatch(.*)*', name: 'NotFound', component: NotFound }
+];
+
 const router = VueRouter.createRouter({
     history: VueRouter.createWebHistory(),
-    routes: [
-        { path: '/', component: Home },
-        { path: '/register', component: register },
-        { path: '/explore', component: Explore },
-        { path: '/newcar', component: NewCar },
-        { path: '/login', component: login },
-        // This is a catch all route in case none of the above matches
-        { path: '/:pathMatch(.*)*', name: 'NotFound', component: NotFound }
-    ]
+    routes, // short for `routes: routes`
 });
 
-app.use(router)
+app.use(router);
+
 app.mount('#app');
