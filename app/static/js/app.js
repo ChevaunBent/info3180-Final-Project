@@ -370,7 +370,7 @@ const Explore = {
         }
     },
     created: function () {
-      setTimeout( () => sessionStorage.clear(), 120)
+      setTimeout( () => sessionStorage.removeItem('message'), 120)
      }
 };
 
