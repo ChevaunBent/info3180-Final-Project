@@ -334,44 +334,55 @@ const Home = {
 };
 
 const Explore = {
-    name: 'Explore',
-    template:
-    /*html*/
-        `
-      <div class="explore">
-        <div class="container">
-          <div class="col-md-6 card-body justify-content-center">
-            <h1>{{welcome}}</h1>
-            <p>{{Header}}</p>
-            <div class="form-group has-feedback">
-              <input type="search" class="form-control input-lg" v-model="searchTerm"
-                placeholder="Search for a car" :name="name">
-              <span class="glyphicon glyphicon-search form-control-feedback" aria-hidden="true"></span>
-            </div>
-            <div class="card">
-
-            </div>
-          </div>
-        </div>
-      </div>
-      `,
-    data() {
-        return {
-            welcome: 'This will be for Exploring/Viewing all posts by users',
-            Header: "Search Box",
-            cars: [
-              {
-                
-              }
-            ]
-        }
-    },
-    methods: {
-      viewAllCars(){
-        
-      }
+  name: 'Explore',
+  template: `
+  /*html*/
+  
+  
+  <h2>Explore</h2>
+  <div>
+    <label>Make</label>
+    <input type="text" name="makesearch" v-model="makesearch"
+  </div>
+  <div>
+    <label>Model</label>
+    <input type="text" name="modelsearch" v-model="modelsearch"
+  </div>
+  <div>
+    <button>Search</button>
+  </div>
+  
+  
+`,
+  data: function() {
+    return {
+        allcars: [],
     }
+  },
+
+  methods: {
+    exploreSearch(){
+      let self = this;
+      fetch('/api/search?searchbymake='+self.searchMake+ '&searchbymodel='+self.searchModel, {
+        method: 'GET',
+        headers:{ 'Authorization': 'Bearer ' + sessionStorage.getItem('token'),'X-CSRFToken': token } 
+      })
+      .then(function (response) {
+        return response.json();
+      })
+      .then(function (jsonResponse) {
+        self.allcars=jsonResponse.searchedcars
+        console.log(jsonResponse);
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
+
+    },
+  }
 };
+      
+
 
 const new_car = {
     name: 'cars-new',
