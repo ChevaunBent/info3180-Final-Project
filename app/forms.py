@@ -26,3 +26,7 @@ class NewCarForm(FlaskForm):
   transmission = SelectField('Car Type', choices=["Automatic", "Standard"], validators=[DataRequired()])
   description = TextAreaField('Description', validators=[InputRequired()])
   photo = FileField('Photo', validators=[FileRequired(),FileAllowed(['jpg', 'jpeg', 'png'],'Images Only!')])
+
+class ExploreForm(FlaskForm):
+  makesearch= StringField('Make', validators=[InputRequired()])
+  modelsearch= StringField('Model', validators=[InputRequired()])
