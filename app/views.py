@@ -35,6 +35,7 @@ def register():
     filename = secure_filename(photo.filename)
     photo.save(os.path.join(upload_folder, filename))
     
+
     name = form.name.data
     email = form.email.data
     location = form.location.data
@@ -60,6 +61,51 @@ def register():
       return jsonify(errors=["Internal error occurred, please try again later"])
   return jsonify(errors=form_errors(form))
  
+
+
+  if request.method == "POST":
+    if registerUser.validate_on_submit():
+      photo = registerUser.photo.data
+      filename = secure_filename(photo.filename)
+      photo.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+            
+      name = registerUser.name.data
+      email = registerUser.email.data
+      location = registerUser.location.data
+      biography = registerUser.biography.data
+      username = registerUser.username.data
+      password = registerUser.password.data
+      date = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            
+      username2 = Users.query.filter_by(username=username).first()
+      email2 =Users.query.filter_by(email=email).first()
+            
+      user = Users(username, password,name,email,location,biography,filename,date)
+      try:
+        if username2 is None and email2 is None:
+          db.session.add(user)
+          db.session.commit()
+          return jsonify(message = "Congratulations.... User successfully added"), 201
+          while (username2 is not None or email2 is not None or username2 is not None and email2 is not None):
+            if username2 is not None and email2 is not None:
+              return jsonify(errors = ["Email Taken", "Username Taken"])
+            elif email2 is not None:
+              return jsonify(errors = ["Email Taken"])
+            else:
+              return jsonify(errors = ["Username Taken"])
+      except Exception as exc: 
+        db.session.rollback()
+        print (exc)
+        return jsonify(errors=["Some Internal Error Occurred, Please Try Again"])
+      else:
+        return jsonify(errors = form_errors(registerUser))
+       
+@app.route('/api/explore', methods=['GET'])
+def explore():
+    """When a user successfully logs in they should see the last 3 cars 
+    that have been added from all users. They should also see a search 
+    box, where they can search by the make or model of a car. """
+    return render_template('explore.html')
 
 ###
 # The functions below should be applicable to all Flask apps.

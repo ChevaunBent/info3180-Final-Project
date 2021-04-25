@@ -210,12 +210,23 @@ const Explore = {
     /*html*/
         `
       <div class="explore">
-      <h1>{{ welcome }}</h1>
+        <div class="container">
+          <div class="col-md-6 card-body justify-content-center">
+            <h1>{{welcome}}</h1>
+            <p>{{Header}}</p>
+            <div class="form-group has-feedback">
+              <input type="search" class="form-control input-lg" v-model="searchTerm"
+                placeholder="Search the cars" :name="name">
+              <span class="glyphicon glyphicon-search form-control-feedback" aria-hidden="true"></span>
+            </div>
+          </div>
+        </div>
       </div>
       `,
     data() {
         return {
-            welcome: 'This will be for Exploring/Viewing all posts by users'
+            welcome: 'This will be for Exploring/Viewing all posts by users',
+            Header: "Search Box"
         }
     }
 };
