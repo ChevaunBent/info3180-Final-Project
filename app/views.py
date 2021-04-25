@@ -8,11 +8,37 @@ This file creates your application.
 import os, datetime
 from app import app, db, login_manager
 from flask import render_template, request, redirect, url_for, flash, jsonify
+from flask_login import login_user, logout_user, current_user, login_required
 from .forms import UserRegistrationForm, LoginForm
 from app.models import Cars, Favourites, Users
 from werkzeug.security import check_password_hash
 from werkzeug.utils import secure_filename
+import jwt
+from functools import wraps
 
+
+def token_required(f):
+  @wraps(f)
+  def decorated(*args, **kwargs):
+      token = request.headers.get('Authorization', None)
+
+      if not token:
+        return jsonify({'message' : 'Token missing'}), 401
+ 
+      try:
+        data = jwt.decode(token.split(" ")[1], app.config['SECRET_KEY'])
+        currentUser = Users.query.filter_by(username=data['user']).first()
+
+        if current_user is None:
+          return jsonify({'error': 'Access Deined'}), 401
+
+      except:
+        return jsonify({
+          'message' : 'Token is invalid'
+        }), 401
+      return  f(current_user, *args, **kwargs)
+ 
+  return decorated
 
 @app.route('/', defaults={'path': ''})
 @app.route('/<path:path>')
@@ -24,6 +50,7 @@ def load_user(id):
   return UserRegistrationForm.query.get(int(id))
 
 @app.route('/api/register', methods=['POST'])
+@token_required
 def register():
   '''Accepts user information and saves it to the database'''
 
@@ -61,13 +88,36 @@ def register():
   return jsonify(errors=form_errors(form))
  
 
-###
-# The functions below should be applicable to all Flask apps.
-###
+@app.route("/api/auth/login", methods=["POST"])
+def login():
+  form = LoginForm()
+
+  if request.method == "POST" and form.validate_on_submit():
+    username = form.username.data
+    password = form.password.data
+    user = Users.query.filter_by(username=username).first() 
+
+    if user is not None and check_password_hash(user.password, password):
+      key = app.config['SECRET_KEY']
+      payload = {'user': user.username}
+      token = jwt.encode(payload, key, algorithm="HS256").decode('utf-8')
+      return jsonify({
+        'message': "Login Successful",
+        'token': token,
+        'user_id': user.id
+        })
+    else:
+      return jsonify(errors=["Username or password is incorrect"])
+  return jsonify(errors=form_errors(form))
+
+@app.route('/api/auth/logout', methods=["GET"])
+@token_required
+def logout():
+  return jsonify(message="You have been logged out")
+
 
 def form_errors(form):
   error_messages = []
-  """Collects form errors"""
   for field, errors in form.errors.items():
     for error in errors:
       message = "Error in the %s field - %s" % (
