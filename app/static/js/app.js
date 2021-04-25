@@ -1,13 +1,24 @@
-const register = ('register', {
+const register = {
     name: 'register',
     template:
-    /*html*/
         `
     <div>
         <h1 class="page-header"> 
             Add New User
         </h1>
-        <form @submit.prevent='register' id = 'register' method = 'POST' enctype="multipart/form-data">
+
+        <!--Displays Messages-->
+        <div class="form_response">
+          <div>
+            <div v-if="has_message" class="alert alert-success">{{ messages }}</div>
+            <ul v-if="has_error" class="alert alert-danger pl-4">
+              <h5> The following errors prohibited the form from submitting: </h5>
+              <li v-for="error in errors" class="pl-2">{{ error }}</li>
+            </ul>
+          </div>
+        </div>
+
+        <form @submit.prevent='register' id ="registrationform" method = 'POST' enctype="multipart/form-data">
             <div>
                 <div class="col-12 form-group">
                     <label for = 'name'> Name </label>
@@ -39,76 +50,61 @@ const register = ('register', {
                         <input type='file' name = 'photo'> <br>
                     </div>
                 </div>
-                <!--Displays Messages-->
-                <div v-if='hasMessage'>
-                    <div v-if="!hasError ">
-                        <div class="alert alert-success" >
-                                {{ message }}
-                        </div>
-                    </div>
-                    <div v-else >
-                        <ul class="alert alert-danger">
-                            <li v-for="error in message">
-                                {{ error }}
-                            </li>
-                        </ul>
-                </div>
-            </div>
                 <div class="col-12">
-                    <button class='btn bg-primary' type='submit'> Submit </button>
+                    <button class='btn btn-primary' type='submit'> Submit </button>
                 </div>
             </div>
         </form>
     </div>
     `,
     data() {
-        return {
-            hasError: false,
-            hasMessage: false
-        }
+      return {
+        messages: "",
+        errors: [],
+        has_error: false,
+        has_message: false
+      }
     },
     methods: {
-        register: function() {
-            let self = this;
-            let register = document.getElementById('register');
-            let form_data = new FormData(register);
+      register() {
+        let self = this;
+        let registration_form = document.getElementById('registrationform');
+        let form_data = new FormData(registration_form);
 
-            fetch('/api/register', {
-                    method: 'POST',
-                    body: form_data,
-                    headers: {
-                        'X-CSRFToken': token
-                    },
-                    credentials: 'same-origin'
-                })
-                .then(function(response) {
-                    return response.json();
-                })
-                .then(function(jsonResponse) {
-                    // display a success message
-                    self.hasMessage = true;
-                    if (jsonResponse.hasOwnProperty("errors")) {
-                        self.hasError = true;
-                        self.message = jsonResponse.errors;
-                        console.log(jsonResponse.errors);
-                    } else if (jsonResponse.hasOwnProperty("message")) {
-                        self.hasError = false;
-                        self.message = jsonResponse.message;
-                        console.log(jsonResponse.message);
-                        setTimeout(function() { router.push('/login'); }, 2000);
-                    }
-                })
-                .catch(function(error) {
-                    console.log(error);
-                });
-        }
+        fetch('/api/register', {
+          method: 'POST',
+          body: form_data,
+          headers: {
+            'X-CSRFToken': token
+          },
+          credentials: 'same-origin'
+        })
+        .then(function(response) {
+          return response.json()
+        })
+        .then(function(jsonResponse) {
+          if (jsonResponse.hasOwnProperty("errors")) {
+            self.errors = jsonResponse.errors
+            self.has_error = true
+            console.log(jsonResponse.errors)
+          } else { 
+            self.messages = jsonResponse.messages
+            self.has_message = true
+            self.has_error = false
+            console.log(jsonResponse.messages)
+            setTimeout( () => router.push('/login'), 3000)
+          }  
+        })
+        .catch(function(error) {
+          console.log(error)
+        });
+      }
     }
-});
+};
 
 const login = {
     name: 'login',
     template:
-    /*html*/
         `
       <div class="register">
       <h1>{{ welcome }}</h1>
@@ -121,17 +117,17 @@ const login = {
     }
 };
 
+
 /* Add your Application JavaScript */
 const app = Vue.createApp({
-    data() {
-        return {
-
-        }
-    },
-    components: {
-        'register': register,
-        'login': login
+  data() {
+    return {
     }
+  },
+  components: {
+    'register': register,
+    'login': login
+  }
 });
 
 app.component('app-header', {

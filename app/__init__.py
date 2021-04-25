@@ -1,11 +1,11 @@
 from flask import Flask
 from flask_login import LoginManager
 from flask_sqlalchemy import SQLAlchemy
-from flask_wtf.csrf import CsrfProtect
+from flask_wtf.csrf import CSRFProtect
 from .config import Config
 
 app = Flask(__name__)
-csrf = CsrfProtect(app)
+csrf = CSRFProtect(app)
 db = SQLAlchemy(app)
 
 # Flask-Login login manager
