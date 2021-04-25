@@ -50,7 +50,6 @@ def load_user(id):
   return UserRegistrationForm.query.get(int(id))
 
 @app.route('/api/register', methods=['POST'])
-@token_required
 def register():
   '''Accepts user information and saves it to the database'''
 
@@ -105,6 +104,7 @@ def login():
       return jsonify({
         'message': "Login Successful",
         'token': token,
+        'user_name': user.username,
         'user_id': user.id
         })
     else:

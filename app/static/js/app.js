@@ -93,6 +93,7 @@ const register = {
             self.has_message = true
             self.has_error = false
             console.log(jsonResponse.messages)
+            sessionStorage.message =jsonResponse.messages
             setTimeout( () => router.push('/login'), 3000)
           }  
         })
@@ -112,11 +113,16 @@ const login = {
           <h2>Please Log in</h2>
 
           <!--Displays Messages-->
-          <div v-if='hasMessage'>
-              <div v-if="!hasError ">
+          <div v-if='hasMessage || smessage'>
+              <div v-if="!hasError && hasMessage">
                   <div class="alert alert-success" >
                           {{ message }}
                   </div>
+              </div>
+              <div v-else-if="!hasError && smessage">
+                <div class="alert alert-success" >
+                    {{smessage}}
+                </div>
               </div>
               <div v-else >
                   <ul class="alert alert-danger">
@@ -146,6 +152,7 @@ const login = {
         hasMessage: false,
         hasError: false, 
         message: "",
+        smessage: sessionStorage.message,
         errors: []        
       }
     },
@@ -169,6 +176,7 @@ const login = {
       .then(function(jsonResponse) {
         // display messages
         self.hasMessage = true;
+        sessionStorage.removeItem('message')
         //Error Message
         if (jsonResponse.hasOwnProperty("errors")) {
             self.hasError = true;
@@ -179,8 +187,9 @@ const login = {
           self.hasError = false;
           self.message = jsonResponse.message;
           //Stores information on current user
-          currentuser = { "token": jsonResponse.token, id: jsonResponse.user_id };
+          currentuser = { "token": jsonResponse.token, "user_name":jsonResponse.user_name ,id: jsonResponse.user_id };
           localStorage.current_user = JSON.stringify(currentuser);
+          console.log(currentuser);
           setTimeout( () => router.push('/explore'), 2000)
         }
       })
@@ -192,7 +201,7 @@ const login = {
 };
 
 const logout = {
-    name: "Logout",
+    name: "logout",
     created: function() {
       let self = this;
 
@@ -256,20 +265,27 @@ app.component('app-header', {
             <li class="nav-item">
               <router-link to="/newcar" class="nav-link">Add Car</router-link>
             </li>
-          </ul>
-          <ul class="navbar-nav">
-            <li v-if="authenticated_user" class="nav-item">
-              <router-link to="/logout" class="nav-link">Logout</router-link>
+            <li class="nav-item">
+              <router-link to="/register" class="nav-link">Register</router-link>
             </li>
-            <div v-else>
-              <li class="nav-item">
-                <router-link to="/register" class="nav-link">Register</router-link>
-              </li>
-              <li class="nav-item">
-                <router-link to="/login" class="nav-link">Login</router-link>
-              </li>
-            </div>
           </ul>
+            <div v-if ="authenticated_user">
+              <ul class="navbar-nav">
+                <li class="nabar-nav" style="color:white">Welcome: {{current_user_name}} </li>
+              </ul>
+              <ul class="navbar-nav">
+                <li class="nav-item">
+                    <router-link to="/logout/" class="nav-link">Logout</router-link>
+                </li>
+              </ul>
+            </div>
+            <div v-else>
+              <ul class="navbar-nav">
+                <li class="nav-item">
+                    <router-link to="/login/" class="nav-link">Login</router-link>
+                </li>
+              </ul>
+          </div>
         </div>
       </nav>
     </header>    
@@ -277,7 +293,8 @@ app.component('app-header', {
   data: function() {
     return {
       authenticated_user: localStorage.hasOwnProperty("current_user"),
-      current_user_id: localStorage.hasOwnProperty("current_user") ? JSON.parse(localStorage.current_user).id : null
+      current_user_id: localStorage.hasOwnProperty("current_user") ? JSON.parse(localStorage.current_user).id : null,
+      current_user_name: localStorage.hasOwnProperty("current_user") ? JSON.parse(localStorage.current_user).user_name : null
     };
   }
 });
