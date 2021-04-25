@@ -20,3 +20,4 @@ six==1.15.0
 SQLAlchemy==1.4.2
 Werkzeug==1.0.1
 WTForms==2.3.3
+Flask-JWT

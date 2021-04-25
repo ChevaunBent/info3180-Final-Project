@@ -105,17 +105,119 @@ const register = {
 const login = {
     name: 'login',
     template:
-        `
-      <div class="register">
-      <h1>{{ welcome }}</h1>
-      </div>
-      `,
+    `
+      <div class="login-form center-block">
+          <h2>Please Log in</h2>
+
+          <!--Displays Messages-->
+          <div v-if='hasMessage'>
+              <div v-if="!hasError ">
+                  <div class="alert alert-success" >
+                          {{ message }}
+                  </div>
+              </div>
+              <div v-else >
+                  <ul class="alert alert-danger">
+                      <h5> The following errors prohibited the form from submitting: </h5>
+                      <li v-for="error in message">
+                          {{ error }}
+                      </li>
+                  </ul>
+              </div>
+          </div>
+
+          <form @submit.prevent='login' id = 'login' method = 'POST' enctype="multipart/form-data">
+          <div class="col-12 form-group">
+              <label for = 'username'> Username </label>
+              <input type="text" name="username" id="username" class="form-control mb-2 mr-sm-2" placeholder="Enter Username here">
+          </div>
+          <div class="col-12 form-group">
+              <label for = 'password'> Password </label>
+              <input type="password" name="password" id="password" class="form-control mb-2 mr-sm-2">
+          </div>
+          <button type="submit" name="submit" class="btn btn-primary btn-block">Log in</button>
+          </form>
+      </div>    
+    `,
     data() {
-        return {
-            welcome: 'This will be for login'
+      return {
+        hasMessage: false,
+        hasError: false, 
+        message: "",
+        errors: []        
+      }
+    },
+    methods: {
+    login: function() {
+      let self = this;
+      let login = document.getElementById('login');
+      let form_data = new FormData(login);
+
+      fetch('/api/auth/login', {
+        method: 'POST',
+        body: form_data,
+        headers: {
+          'X-CSRFToken': token
+        },
+        credentials: 'same-origin'
+      })
+      .then(function(response) {
+        return response.json();
+      })
+      .then(function(jsonResponse) {
+        // display messages
+        self.hasMessage = true;
+        //Error Message
+        if (jsonResponse.hasOwnProperty("errors")) {
+            self.hasError = true;
+            self.message = jsonResponse.errors;
+            console.log(jsonResponse.errors);
+            //Success Message
+        } else {
+          self.hasError = false;
+          self.message = jsonResponse.message;
+          //Stores information on current user
+          currentuser = { "token": jsonResponse.token, id: jsonResponse.user_id };
+          localStorage.current_user = JSON.stringify(currentuser);
+          setTimeout( () => router.push('/explore'), 2000)
         }
+      })
+      .catch(function(error) {
+        console.log(error);
+      });
+    }
+  }
+};
+
+const logout = {
+    name: "Logout",
+    created: function() {
+      let self = this;
+
+      fetch("/api/auth/logout", {
+        method: "GET",
+      })
+      .then(function(response) {
+        return response.json();
+      })
+      .then(function(jsonResponse) {
+        hasMessage = true;
+        localStorage.removeItem("current_user");
+        self.message = jsonResponse.message;
+        console.log(jsonResponse.message);
+        router.push('/');
+      })
+      .catch(function(error) {
+        console.log(error);
+      });
+    },
+    data() {
+      return {
+        hasMessage: false
+      }
     }
 };
+
 
 
 /* Add your Application JavaScript */
@@ -154,20 +256,28 @@ app.component('app-header', {
             </li>
           </ul>
           <ul class="navbar-nav">
-            <li class="nav-item">
-              <router-link to="/register" class="nav-link">Register</router-link>
+            <li v-if="authenticated_user" class="nav-item">
+              <router-link to="/logout" class="nav-link">Logout</router-link>
             </li>
-            <li class="nav-item">
-              <router-link to="/login" class="nav-link">Login</router-link>
-            </li>
+            <div v-else>
+              <li class="nav-item">
+                <router-link to="/register" class="nav-link">Register</router-link>
+              </li>
+              <li class="nav-item">
+                <router-link to="/login" class="nav-link">Login</router-link>
+              </li>
+            </div>
           </ul>
         </div>
       </nav>
     </header>    
   `,
-    data: function() {
-        return {};
-    }
+  data: function() {
+    return {
+      authenticated_user: localStorage.hasOwnProperty("current_user"),
+      current_user_id: localStorage.hasOwnProperty("current_user") ? JSON.parse(localStorage.current_user).id : null
+    };
+  }
 });
 
 const Home = {
@@ -207,7 +317,6 @@ const Home = {
 const Explore = {
     name: 'Explore',
     template:
-    /*html*/
         `
       <div class="explore">
         <div class="container">
@@ -234,7 +343,6 @@ const Explore = {
 const NewCar = {
     name: 'newcar',
     template:
-    /*html*/
         `
         <div class="newcar">
         <h1>{{ welcome }}</h1>
@@ -267,12 +375,11 @@ app.component('app-footer', {
 const NotFound = {
     name: 'NotFound',
     template:
-    /*html*/
-        `
-  <div>
-      <h1>404 - Not Found</h1>
-  </div>
-  `,
+    `
+      <div>
+          <h1>404 - Not Found</h1>
+      </div>
+    `,
     data() {
         return {}
     }
@@ -287,6 +394,7 @@ const router = VueRouter.createRouter({
         { path: '/explore', component: Explore },
         { path: '/newcar', component: NewCar },
         { path: '/login', component: login },
+        { path: '/logout', component: logout },
         // This is a catch all route in case none of the above matches
         { path: '/:pathMatch(.*)*', name: 'NotFound', component: NotFound }
     ]

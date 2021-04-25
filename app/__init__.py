@@ -3,6 +3,7 @@ from flask_login import LoginManager
 from flask_sqlalchemy import SQLAlchemy
 from flask_wtf.csrf import CSRFProtect
 from .config import Config
+from flask_jwt_extended import JWTManager
 
 app = Flask(__name__)
 csrf = CSRFProtect(app)
