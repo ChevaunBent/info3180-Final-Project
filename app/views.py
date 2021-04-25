@@ -117,7 +117,7 @@ def login():
 def logout():
   return jsonify(message="You have been logged out")
 
-@app.route("/api/newcar", methods=['POST'])
+@app.route("/api/car", methods=['POST'])
 def newCar(user_id):
   form = NewCarForm()
   upload_folder = app.config['UPLOAD_FOLDER']
@@ -142,16 +142,17 @@ def newCar(user_id):
   else:
     return jsonify(errors=['Oh oh, something went wrong.'])
 
-        
+"""@app.route("/api/search", methods=["GET"])
+def search(user_id):
+"""
+
 
 
 def form_errors(form):
   error_messages = []
   for field, errors in form.errors.items():
     for error in errors:
-      message = "Error in the %s field - %s" % (
-                getattr(form, field).label.text,
-                error)
+      message = "Error in the %s field - %s" % (getattr(form, field).label.text,error)
       error_messages.append(message)
   return error_messages
 
