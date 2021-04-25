@@ -9,7 +9,7 @@ import os, datetime
 from app import app, db, login_manager
 from flask import render_template, request, redirect, url_for, flash, jsonify
 from flask_login import login_user, logout_user, current_user, login_required
-from .forms import UserRegistrationForm, LoginForm
+from .forms import UserRegistrationForm, LoginForm, NewCarForm
 from app.models import Cars, Favourites, Users
 from werkzeug.security import check_password_hash
 from werkzeug.utils import secure_filename
@@ -114,6 +114,40 @@ def login():
 @token_required
 def logout():
   return jsonify(message="You have been logged out")
+
+
+@app.route('/api/cars', methods=["POST"])
+@token_required
+def new_car():
+  form = NewCarForm()
+  upload_folder = app.config['UPLOAD_FOLDER']
+  
+  if request.method == "POST" and form.validate_on_submit():
+    photo = form.photo.data
+    filename = secure_filename(photo.filename)
+    photo.save(os.path.join(upload_folder, filename))
+    
+    make = form.make.data
+    model = form.model.data
+    colour = form.colour.data
+    price = form.price.data
+    car_type = form.car_type.data
+    transmission = form.transmission.data
+    description = form.description.data
+    user_id = form.user_id.data
+
+    new_car = Cars(user_id, description, make, model, colour, year, transmission, car_type, price, photo)
+
+    try:
+      db.session.add(new_car)
+      db.session.commit()
+      return jsonify(message="Car added successfully")
+    except Exception as exc: 
+      db.session.rollback()
+      print(exc)
+      return jsonify(errors=["Internal error occurred, please try again later"])
+  return jsonify(errors=form_errors(form))
+
 
 
 def form_errors(form):
