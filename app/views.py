@@ -139,6 +139,8 @@ def newCar(user_id):
     db.session.add(new_Car)
     db.session.commit()
     return jsonify(messages="Congrats! You've added a new Car")
+  else:
+    return jsonify(errors=['Oh oh, something went wrong.'])
 
         
 
