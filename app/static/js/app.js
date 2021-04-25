@@ -278,14 +278,14 @@ app.component('app-header', {
               </ul>
               <ul class="navbar-nav">
                 <li class="nav-item">
-                    <router-link to="/logout/" class="nav-link">Logout</router-link>
+                    <router-link to="/auth/logout" class="nav-link">Logout</router-link>
                 </li>
               </ul>
             </div>
             <div v-else>
               <ul class="navbar-nav">
                 <li class="nav-item">
-                    <router-link to="/login/" class="nav-link">Login</router-link>
+                    <router-link to="/auth/login" class="nav-link">Login</router-link>
                 </li>
               </ul>
           </div>
@@ -315,7 +315,7 @@ const Home = {
           <p>{{welcome}}</p>
           <div>
             <router-link class="btn btn-success col-md-3" to="/register">Register</router-link>
-            <router-link class="btn btn-primary col-md-3" style="margin: 10px" to="/login">Login</router-link>
+            <router-link class="btn btn-primary col-md-3" style="margin: 10px" to="/auth/login">Login</router-link>
           </div>
         </div>
         <div class="col-md-6 landing-container-child float-clear">
@@ -544,7 +544,17 @@ const router = VueRouter.createRouter({
     routes: [
         { path: '/', component: Home },
         { path: '/register', component: register },
-        { path: '/explore', component: Explore },
+        { path: '/explore', 
+          component: Explore, 
+          beforeEnter(to, from, next) {
+            let current_user = (localStorage.current_user);
+            if (current_user) {
+              next();
+            } else {
+              next('/auth/login');
+            }
+          },
+         },
         { 
           path: '/cars/new', 
           component: new_car,
@@ -557,8 +567,19 @@ const router = VueRouter.createRouter({
             }
           },
          },
-        { path: '/login', component: login },
-        { path: '/logout', component: logout },
+        { path: '/auth/login', component: login },
+        { 
+          path: '/auth/logout', 
+          component: logout,  
+          beforeEnter(to, from, next) {
+            let current_user = (localStorage.current_user);
+            if (current_user) {
+              next();
+            } else {
+              next('/auth/login');
+            }
+          },
+        },
         // This is a catch all route in case none of the above matches
         { path: '/:pathMatch(.*)*', name: 'NotFound', component: NotFound }
     ]
