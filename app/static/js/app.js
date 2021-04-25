@@ -500,9 +500,49 @@ const view_car = {
     name: 'view_car',
     template:
     /*html*/
-    `
-      <div>
-        <div>{{ car.make }}</div>
+    ` 
+      <div class="col-12 py-5">
+        <div class="card">
+          <div class="row">
+            <div class="col-6">
+              <img :src="'../static/uploads/'+car.photo" class="w-100 h-100 object-cover" alt="photo-of-{{car.model}}">
+            </div>
+            <div class="col">
+              <div class="card-body">
+                <h3 class="card-title font-weight-bold">{{ car.year }} {{ car.make }}</h3>
+                <h4 class="font-weight-bold text-muted">{{ car.model }}</h4> 
+                
+                <div>{{ car.description }}</div>
+
+                <div class="row m-0 mt-4 mb-4">
+                  <div class="card-text d-flex align-items-center me-4">
+                    <div class="">
+                      <p class="font-weight-bold col pl-0"><span class="text-muted">Color</span> <span class="ml-2">{{ car.colour }}</span> </p> 
+                      <p class="font-weight-bold col pl-0"><span class="text-muted">Color</span> <span class="ml-2">{{ car.colour }}</span> </p> 
+                      
+                    </div>
+                    <div>
+                      <p class="font-weight-bold col pl-0"><span class="text-muted">Color</span> <span class="ml-2">{{ car.colour }}</span> </p> 
+                      <p class="font-weight-bold col pl-0"><span class="text-muted">Color</span> <span class="ml-2">{{ car.colour }}</span> </p> 
+                    </div>
+                  </div>
+                </div><!--/.row-->
+
+                <div class="">
+                  <div class="d-flex">
+                    <a href="#" class="btn btn-primary">Email Owner</a>
+                    <a href="#" class="btn btn-circle ms-auto btn-secondary">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-heart" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                       <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                       <path d="M19.5 13.572l-7.5 7.428l-7.5 -7.428m0 0a5 5 0 1 1 7.5 -6.566a5 5 0 1 1 7.5 6.572"></path>
+                    </svg>
+                    </a>
+                  </div>
+                </div>
+              </div><!--/.card-body-->
+            </div>
+          </div>
+        </div><!--/.card-->
       </div>
     `,
     data() {
