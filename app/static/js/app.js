@@ -259,11 +259,11 @@ app.component('app-header', {
             <li class="nav-item active">
               <router-link to="/" class="nav-link">Home</router-link>
             </li>
-            <li class="nav-item">
+            <li class="nav-item" v-if="authenticated_user">
               <router-link to="/explore" class="nav-link">Explore</router-link>
             </li>
-            <li class="nav-item">
-              <router-link to="/newcar" class="nav-link">Add Car</router-link>
+            <li class="nav-item" v-if="authenticated_user">
+              <router-link to="/cars/new" class="nav-link">Add Car</router-link>
             </li>
             <li class="nav-item">
               <router-link to="/register" class="nav-link">Register</router-link>
@@ -373,8 +373,8 @@ const Explore = {
     }
 };
 
-const NewCar = {
-    name: 'newcar',
+const new_car = {
+    name: 'cars-new',
     template:
     /*html*/
         `
@@ -430,7 +430,8 @@ const NewCar = {
             </div>
           </div>
         </div>
-        `,
+      </div>
+    `,
     data() {
         return {
           welcome: 'This will be for Adding a new Car',
@@ -466,11 +467,11 @@ const NotFound = {
     /*html*/
     `
       <div>
-          <h1>404 - Not Found</h1>
+        <h1>404 - Not Found</h1>
       </div>
     `,
     data() {
-        return {}
+      return {}
     }
 };
 
@@ -481,7 +482,18 @@ const router = VueRouter.createRouter({
         { path: '/', component: Home },
         { path: '/register', component: register },
         { path: '/explore', component: Explore },
-        { path: '/newcar', component: NewCar },
+        { 
+          path: '/cars/new', 
+          component: new_car,
+          beforeEnter(to, from, next) {
+            let current_user = (localStorage.current_user);
+            if (current_user) {
+              next();
+            } else {
+              next('/login');
+            }
+          },
+         },
         { path: '/login', component: login },
         { path: '/logout', component: logout },
         // This is a catch all route in case none of the above matches

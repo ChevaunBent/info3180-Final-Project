@@ -23,21 +23,17 @@ def token_required(f):
       token = request.headers.get('Authorization', None)
 
       if not token:
-        return jsonify({'message' : 'Token missing'}), 401
+        return jsonify({'error' : 'Token missing'}), 401
  
       try:
         data = jwt.decode(token.split(" ")[1], app.config['SECRET_KEY'])
-        currentUser = Users.query.filter_by(username=data['user']).first()
+        current_user = Users.query.filter_by(username=data['user']).first()
 
-        if current_user is None:
+        if not current_user:
           return jsonify({'error': 'Access Deined'}), 401
-
+        return  f(current_user, *args, **kwargs)
       except:
-        return jsonify({
-          'message' : 'Token is invalid'
-        }), 401
-      return  f(current_user, *args, **kwargs)
- 
+        return jsonify({'error' : 'Token is invalid'}), 401
   return decorated
 
 @app.route('/', defaults={'path': ''})
@@ -145,6 +141,39 @@ def newCar(user_id):
 """@app.route("/api/search", methods=["GET"])
 def search(user_id):
 """
+
+
+
+@app.route('/api/cars', methods=["POST"])
+@token_required
+def new_car(current_user):
+  form = NewCarForm()
+  upload_folder = app.config['UPLOAD_FOLDER']
+
+  if request.method == "POST" and form.validate_on_submit():
+    photo = form.photo.data
+    filename = secure_filename(photo.filename)
+    photo.save(os.path.join(upload_folder, filename))
+    make = form.make.data
+    model = form.model.data
+    year = form.year.data
+    colour = form.colour.data
+    price = form.price.data
+    car_type = form.car_type.data
+    transmission = form.transmission.data
+    description = form.description.data
+
+    new_car = Cars(current_user.id, description, make, model, colour, year, transmission, car_type, price, filename)
+
+    try:
+      db.session.add(new_car)
+      db.session.commit()
+      return jsonify(message="Car added successfully")
+    except Exception as exc: 
+      db.session.rollback()
+      print(exc)
+      return jsonify(errors=["Internal error occurred, please try again later"])
+  return jsonify(errors=form_errors(form))
 
 
 
