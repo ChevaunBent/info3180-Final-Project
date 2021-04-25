@@ -113,7 +113,7 @@ const login = {
           <h2>Please Log in</h2>
 
           <!--Displays Messages-->
-          <div v-if='hasMessage || smessage'>
+          <div v-if='hasMessage || smessage!= "undefined"'>
               <div v-if="!hasError && hasMessage">
                   <div class="alert alert-success" >
                           {{ message }}
@@ -124,7 +124,7 @@ const login = {
                     {{smessage}}
                 </div>
               </div>
-              <div v-else >
+              <div v-else-if="hasError" >
                   <ul class="alert alert-danger">
                       <h5> The following errors prohibited the form from submitting: </h5>
                       <li v-for="error in message">
@@ -189,8 +189,9 @@ const login = {
           //Stores information on current user
           currentuser = { "token": jsonResponse.token, "user_name":jsonResponse.user_name ,id: jsonResponse.user_id };
           localStorage.current_user = JSON.stringify(currentuser);
+          sessionStorage.message = jsonResponse.message;
           console.log(currentuser);
-          setTimeout( () => router.push('/explore'), 2000)
+          setTimeout( () => history.go(), router.push('/explore'), 10000);
         }
       })
       .catch(function(error) {
@@ -213,10 +214,12 @@ const logout = {
       })
       .then(function(jsonResponse) {
         hasMessage = true;
-        localStorage.removeItem("current_user");
+        localStorage.clear();
+        sessionStorage.clear();
         self.message = jsonResponse.message;
         console.log(jsonResponse.message);
-        router.push('/');
+        history.go();
+        setTimeout( () => history.go(), router.push('/'), 10000)
       })
       .catch(function(error) {
         console.log(error);
@@ -339,6 +342,13 @@ const Explore = {
     /*html*/
         `
       <div class="explore">
+        <!--Displays Messages-->
+        <div v-if='smessage != "undefined"'>
+            <div class="alert alert-success" >
+              {{ smessage }}
+            </div>
+        </div>
+      <!-------------------------->
         <div class="container">
           <div class="col-md-6 card-body justify-content-center">
             <h1>{{welcome}}</h1>
@@ -355,7 +365,8 @@ const Explore = {
     data() {
         return {
             welcome: 'This will be for Exploring/Viewing all posts by users',
-            Header: "Search Box"
+            Header: "Search Box",
+            smessage: sessionStorage.message
         }
     }
 };

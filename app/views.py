@@ -9,8 +9,8 @@ import os, datetime
 from app import app, db, login_manager
 from flask import render_template, request, redirect, url_for, flash, jsonify
 from flask_login import login_user, logout_user, current_user, login_required
-from .forms import UserRegistrationForm, LoginForm
-from app.models import Cars, Favourites, Users
+from .forms import *
+from app.models import *
 from werkzeug.security import check_password_hash
 from werkzeug.utils import secure_filename
 import jwt
