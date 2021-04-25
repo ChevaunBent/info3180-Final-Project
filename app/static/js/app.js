@@ -1,7 +1,8 @@
 const register = {
     name: 'register',
     template:
-        `
+    /*html*/    
+    `
     <div>
         <h1 class="page-header"> 
             Add New User
@@ -105,6 +106,7 @@ const register = {
 const login = {
     name: 'login',
     template:
+    /*html*/
     `
       <div class="login-form center-block">
           <h2>Please Log in</h2>
@@ -317,6 +319,7 @@ const Home = {
 const Explore = {
     name: 'Explore',
     template:
+    /*html*/
         `
       <div class="explore">
         <div class="container">
@@ -343,6 +346,7 @@ const Explore = {
 const NewCar = {
     name: 'newcar',
     template:
+    /*html*/
         `
         <div class="newcar">
         <h1>{{ welcome }}</h1>
@@ -358,7 +362,8 @@ const NewCar = {
 
 app.component('app-footer', {
     name: 'AppFooter',
-    template: `
+    template: 
+    /*html*/`
       <footer>
           <div class="container">
               <p>Copyright &copy {{ year }} Flask Inc.</p>
@@ -375,6 +380,7 @@ app.component('app-footer', {
 const NotFound = {
     name: 'NotFound',
     template:
+    /*html*/
     `
       <div>
           <h1>404 - Not Found</h1>
