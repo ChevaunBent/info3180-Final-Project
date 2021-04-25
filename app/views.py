@@ -23,21 +23,17 @@ def token_required(f):
       token = request.headers.get('Authorization', None)
 
       if not token:
-        return jsonify({'message' : 'Token missing'}), 401
+        return jsonify({'error' : 'Token missing'}), 401
  
       try:
         data = jwt.decode(token.split(" ")[1], app.config['SECRET_KEY'])
-        currentUser = Users.query.filter_by(username=data['user']).first()
+        current_user = Users.query.filter_by(username=data['user']).first()
 
-        if current_user is None:
+        if not current_user:
           return jsonify({'error': 'Access Deined'}), 401
-
+        return  f(current_user, *args, **kwargs)
       except:
-        return jsonify({
-          'message' : 'Token is invalid'
-        }), 401
-      return  f(current_user, *args, **kwargs)
- 
+        return jsonify({'error' : 'Token is invalid'}), 401
   return decorated
 
 @app.route('/', defaults={'path': ''})
@@ -50,7 +46,6 @@ def load_user(id):
   return UserRegistrationForm.query.get(int(id))
 
 @app.route('/api/register', methods=['POST'])
-@token_required
 def register():
   '''Accepts user information and saves it to the database'''
 
@@ -118,25 +113,24 @@ def logout():
 
 @app.route('/api/cars', methods=["POST"])
 @token_required
-def new_car():
+def new_car(current_user):
   form = NewCarForm()
   upload_folder = app.config['UPLOAD_FOLDER']
-  
+
   if request.method == "POST" and form.validate_on_submit():
     photo = form.photo.data
     filename = secure_filename(photo.filename)
     photo.save(os.path.join(upload_folder, filename))
-    
     make = form.make.data
     model = form.model.data
+    year = form.year.data
     colour = form.colour.data
     price = form.price.data
     car_type = form.car_type.data
     transmission = form.transmission.data
     description = form.description.data
-    user_id = form.user_id.data
 
-    new_car = Cars(user_id, description, make, model, colour, year, transmission, car_type, price, photo)
+    new_car = Cars(current_user.id, description, make, model, colour, year, transmission, car_type, price, filename)
 
     try:
       db.session.add(new_car)

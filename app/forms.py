@@ -17,11 +17,10 @@ class LoginForm(FlaskForm):
   password = PasswordField('Password', validators=[InputRequired()])
 
 class NewCarForm(FlaskForm):
-  user_id = HiddenField("User Id")
   make = StringField('Make', validators=[InputRequired()])
   model = StringField('Model', validators=[InputRequired()])
   colour = StringField('Colour', validators=[InputRequired()])
-  year = StringField('Year', validators=[InputRequired()])
+  year = IntegerField('Year', validators=[InputRequired()])
   price = IntegerField('Price', validators=[InputRequired(), validators.NumberRange(min=0)])
   car_type = SelectField('Car Type', choices=["SUV", "Sedan", "Convertible", "Crossover", "Hatchback", "Subaru"], validators=[DataRequired()])
   transmission = SelectField('Car Type', choices=["Automatic", "Standard"], validators=[DataRequired()])

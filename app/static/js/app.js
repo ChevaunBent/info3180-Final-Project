@@ -335,6 +335,17 @@ const new_car = {
     `
       <h1 class="page-header mb-3"><strong>Add New Car</strong></h1>
 
+      <!--Displays Messages-->
+      <div class="form_response">
+        <div>
+          <div v-if="has_message" class="alert alert-success">{{ message }}</div>
+          <ul v-if="has_error" class="alert alert-danger pl-4">
+            <h5> The following errors prohibited the form from submitting: </h5>
+            <li v-for="error in errors" class="pl-2">{{ error }}</li>
+          </ul>
+        </div>
+      </div>
+
       <div class="card lift">
         <div class="card-body">
           <form id="new_car_form" @submit.prevent="new_car" enctype="multipart/form-data">
@@ -356,7 +367,7 @@ const new_car = {
               </div>   
               <div class="col">
                 <label for='year'>Year</label>
-                <input type='year' id='year' name='year' class='form-control'/>
+                <input type='number' id='year' name='year' class='form-control'/>
               </div>   
             </div>
 
@@ -367,7 +378,7 @@ const new_car = {
               </div>   
               <div class="col">
                 <label for='car_type'>Car Type</label>
-                <select class="form-control">
+                <select for="car_type" name='car_type' class="form-control">
                   <option>SUV</option>
                   <option>Sedan</option>
                   <option>Hatchback</option>
@@ -379,7 +390,7 @@ const new_car = {
             <div class="row mb-3">
               <div class="col-md-6">
                 <label for='transmission'>Transmission</label>
-                <select class="form-control">
+                <select for="transmission" name='transmission' class="form-control">
                   <option>Automatic</option>
                   <option>Standard</option>
                 </select>
@@ -404,7 +415,46 @@ const new_car = {
     data() {
       return {
         message: "",
-        errors: []
+        errors: [],
+        has_error: false,
+        has_message: false
+      }
+    },
+    methods: {
+
+      new_car() {
+        let self = this;
+        let new_car_form = document.getElementById('new_car_form');
+        let form_data = new FormData(new_car_form);
+
+        fetch('/api/cars', {
+          method: 'POST',
+          body: form_data,
+          headers: {
+            'Authorization': `Bearer ${JSON.parse(localStorage.current_user).token}`,
+            'X-CSRFToken': token
+          },
+          credentials: 'same-origin'
+        })
+        .then(function(response) {
+          return response.json()
+        })
+        .then(function(jsonResponse) {
+          if (jsonResponse.hasOwnProperty("errors")) {
+            self.errors = jsonResponse.errors
+            self.has_error = true
+            console.log(jsonResponse.errors)
+          } else { 
+            self.message = jsonResponse.message
+            self.has_message = true
+            self.has_error = false
+            console.log(jsonResponse.message)
+            setTimeout( () => router.push('/'), 3000)
+          }  
+        })
+        .catch(function(error) {
+          console.log(error)
+        });
       }
     }
 };
@@ -431,11 +481,11 @@ const NotFound = {
     template:
     `
       <div>
-          <h1>404 - Not Found</h1>
+        <h1>404 - Not Found</h1>
       </div>
     `,
     data() {
-        return {}
+      return {}
     }
 };
 
@@ -446,7 +496,18 @@ const router = VueRouter.createRouter({
         { path: '/', component: Home },
         { path: '/register', component: register },
         { path: '/explore', component: Explore },
-        { path: '/cars/new', component: new_car },
+        { 
+          path: '/cars/new', 
+          component: new_car,
+          beforeEnter(to, from, next) {
+            let current_user = (localStorage.current_user);
+            if (current_user) {
+              next();
+            } else {
+              next('/login');
+            }
+          },
+         },
         { path: '/login', component: login },
         { path: '/logout', component: logout },
         // This is a catch all route in case none of the above matches
