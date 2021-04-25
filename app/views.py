@@ -84,7 +84,7 @@ def register():
     except Exception as exc: 
       db.session.rollback()
       print(exc)
-      return jsonify(errors=["Internal error occurred, please try again later"])
+    return jsonify(errors=["Internal error occurred, please try again later"])
   return jsonify(errors=form_errors(form))
  
 

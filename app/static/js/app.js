@@ -355,7 +355,7 @@ const Explore = {
             <p>{{Header}}</p>
             <div class="form-group has-feedback">
               <input type="search" class="form-control input-lg" v-model="searchTerm"
-                placeholder="Search the cars" :name="name">
+                placeholder="Search for a car" :name="name">
               <span class="glyphicon glyphicon-search form-control-feedback" aria-hidden="true"></span>
             </div>
           </div>
