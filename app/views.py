@@ -112,6 +112,29 @@ def login():
 def logout():
   return jsonify(message="You have been logged out")
 
+@app.route('/api/cars/<car_id>', methods=["GET"])
+def get_car(car_id):
+  if request.method == "GET":
+    print("ssasad",car_id)
+    car = Cars.query.filter_by(id=car_id).first() 
+    if not car: 
+      return jsonify(error="Car not found")
+
+    _car = {
+      'id': car.id,
+      'year': car.year,
+      'make': car.make,
+      'model': car.model,
+      'colour': car.colour,
+      'description': car.description,
+      'transmission': car.transmission,
+      'car_type': car.car_type,
+      'prcie': car.price,
+      'photo': car.photo,
+      'user_id': car.user_id,
+    }
+    return  jsonify(car=_car)
+
 
 @app.route('/api/cars', methods=["POST"])
 @token_required

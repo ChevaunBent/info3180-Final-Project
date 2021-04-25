@@ -496,6 +496,40 @@ const new_car = {
     }
 };
 
+const view_car = {
+    name: 'view_car',
+    template:
+    /*html*/
+    `
+      <div>
+        <div>{{ car.make }}</div>
+      </div>
+    `,
+    data() {
+      return {
+        car: "",
+        error: ""
+      }
+    }, 
+    created() {
+      let self = this;
+      fetch(`/api/cars/${self.$route.params.car_id}`, {
+        method: "GET",
+        headers: {
+          'Authorization': `Bearer ${JSON.parse(localStorage.current_user).token}`,
+        }
+      })
+      .then(function(response) {
+        return response.json();
+      })
+      .then(function(data) {
+        console.log(data);
+        self.car = data.car
+      });
+    },
+};
+
+
 
 app.component('app-footer', {
     name: 'AppFooter',
@@ -546,6 +580,18 @@ const router = VueRouter.createRouter({
           },
          },
         { 
+          path: '/cars/:car_id', 
+          component: view_car,
+          beforeEnter(to, from, next) {
+            let current_user = (localStorage.current_user);
+            if (current_user) {
+              next();
+            } else {
+              next('/auth/login');
+            }
+          },
+         },
+        { 
           path: '/cars/new', 
           component: new_car,
           beforeEnter(to, from, next) {
@@ -553,7 +599,7 @@ const router = VueRouter.createRouter({
             if (current_user) {
               next();
             } else {
-              next('/login');
+              next('/auth/login');
             }
           },
          },
