@@ -607,7 +607,7 @@ app.component('app-footer', {
             year: (new Date).getFullYear()
         }
     }
-})
+})  
 
 const NotFound = {
     name: 'NotFound',
@@ -649,7 +649,7 @@ const router = VueRouter.createRouter({
             if (current_user) {
               next();
             } else {
-              next('/login');
+              next('/auth/login');
             }
           },
          },
