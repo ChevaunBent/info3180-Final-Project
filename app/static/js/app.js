@@ -262,10 +262,10 @@ app.component('app-header', {
             <li class="nav-item active">
               <router-link to="/" class="nav-link">Home</router-link>
             </li>
-            <li class="nav-item">
+            <li class="nav-item" v-if="authenticated_user">
               <router-link to="/explore" class="nav-link">Explore</router-link>
             </li>
-            <li class="nav-item">
+            <li class="nav-item" v-if="authenticated_user">
               <router-link to="/newcar" class="nav-link">Add Car</router-link>
             </li>
             <li class="nav-item">
