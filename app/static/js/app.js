@@ -113,7 +113,7 @@ const login = {
           <h2>Please Log in</h2>
 
           <!--Displays Messages-->
-          <div v-if='hasMessage || smessage!= "undefined"'>
+          <div v-if='hasMessage || smessage'>
               <div v-if="!hasError && hasMessage">
                   <div class="alert alert-success" >
                           {{ message }}
@@ -124,7 +124,7 @@ const login = {
                     {{smessage}}
                 </div>
               </div>
-              <div v-else-if="hasError" >
+              <div v-else >
                   <ul class="alert alert-danger">
                       <h5> The following errors prohibited the form from submitting: </h5>
                       <li v-for="error in message">
@@ -189,9 +189,8 @@ const login = {
           //Stores information on current user
           currentuser = { "token": jsonResponse.token, "user_name":jsonResponse.user_name ,id: jsonResponse.user_id };
           localStorage.current_user = JSON.stringify(currentuser);
-          sessionStorage.message = jsonResponse.message;
           console.log(currentuser);
-          setTimeout( () => history.go(), router.push('/explore'), 10000);
+          setTimeout( () => router.push('/explore'), 2000)
         }
       })
       .catch(function(error) {
@@ -214,12 +213,10 @@ const logout = {
       })
       .then(function(jsonResponse) {
         hasMessage = true;
-        localStorage.clear();
-        sessionStorage.clear();
+        localStorage.removeItem("current_user");
         self.message = jsonResponse.message;
         console.log(jsonResponse.message);
-        history.go();
-        setTimeout( () => history.go(), router.push('/'), 10000)
+        router.push('/');
       })
       .catch(function(error) {
         console.log(error);
@@ -342,13 +339,6 @@ const Explore = {
     /*html*/
         `
       <div class="explore">
-        <!--Displays Messages-->
-        <div v-if='smessage != undefined'>
-            <div class="alert alert-success" >
-              {{ smessage }}
-            </div>
-        </div>
-      <!-------------------------->
         <div class="container">
           <div class="col-md-6 card-body justify-content-center">
             <h1>{{welcome}}</h1>
@@ -358,6 +348,9 @@ const Explore = {
                 placeholder="Search for a car" :name="name">
               <span class="glyphicon glyphicon-search form-control-feedback" aria-hidden="true"></span>
             </div>
+            <div class="card">
+
+            </div>
           </div>
         </div>
       </div>
@@ -366,143 +359,87 @@ const Explore = {
         return {
             welcome: 'This will be for Exploring/Viewing all posts by users',
             Header: "Search Box",
-            smessage: sessionStorage.message
+            cars: [
+              {
+                
+              }
+            ]
         }
     },
-    created: function () {
-      setTimeout( () => sessionStorage.removeItem('message'), 120)
-     }
+    methods: {
+      viewAllCars(){
+        
+      }
+    }
 };
 
 const new_car = {
     name: 'cars-new',
     template:
     /*html*/
-    `
-    <div class="newcar">
-      <h1 class="page-header mb-3"><strong>Add New Car</strong></h1>
+        `
+        <div class="newcar">
+          <div class= "container">
+            <h1>{{ welcome }}</h1>
+            <div class="card">
+              <form method='POST>
+                <div class="col-12 form-group">
+                  <label for='make'> Make </label>
+                  <input type="text" name="make" placeholder="Telsa">
 
-      <!--Displays Messages-->
-      <div class="form_response">
-        <div>
-          <div v-if="has_message" class="alert alert-success">{{ message }}</div>
-          <ul v-if="has_error" class="alert alert-danger pl-4">
-            <h5> The following errors prohibited the form from submitting: </h5>
-            <li v-for="error in errors" class="pl-2">{{ error }}</li>
-          </ul>
-        </div>
-      </div>
+                  <label for='model'> Model </label>
+                  <input type="text" name="model" placeholder="Model S">
 
-      <div class="card lift">
-        <div class="card-body">
-          <form id="new_car_form" @submit.prevent="new_car" enctype="multipart/form-data">
-            <div class="row mb-3">
-              <div class="col">
-                <label for='make'>Make</label>
-                <input type='make' id='make' name='make' class='form-control'>
-              </div>   
-              <div class="col">
-                <label for='model'>Model</label>
-                <input type='model' id='model' name='model' class='form-control'>
-              </div>   
+                  <label for='colour'> Colour </label>
+                  <input type="text" name="colour" placeholder="Red">
+
+                  <label for='year'> Year </label>
+                  <input type="number" name="year" placeholder="2018">
+
+                  <label for='price'> Price </label>
+                  <input type="number" name="price" placeholder="62888">
+
+                  <label for='cartype'> Car Type </label>
+                  <select id="cartype" name="cartype">
+                    <option value="suv">SUV</option>
+                    <option value="volvo">VOLVO</option>
+                    <option value="audi">Audi</option>
+                  </select>
+
+                  <label for='transmission'> Transmission </label>
+                  <select id="transmission" name="transmission">
+                    <option value="automatic">Automatic</option>
+                    <option value="manual">Manual</option>
+                    <option value="semi-automatic">Semi-automatic</option>
+                  </select>
+
+
+                  <label for='description'> Description </label>
+                  <textarea id="description" name="description" rows="7" cols="80"></texxtarea>
+
+                  <label for = 'photo'>Select a photo: </label> <br>
+                  <input type='file' name = 'photo'> <br>
+
+                  <input type="submit" value="Save">
+
+
+                  
+                    
+                </div>
+              </form>
             </div>
- 
-            <div class="row mb-3">
-              <div class="col">
-                <label for='colour'>Colour</label>
-                <input type='colour' id='colour' name='colour' class='form-control'/>
-              </div>   
-              <div class="col">
-                <label for='year'>Year</label>
-                <input type='number' id='year' name='year' class='form-control'/>
-              </div>   
-            </div>
-
-            <div class="row mb-3">
-              <div class="col">
-                <label for='price'>Price</label>
-                <input type='price' id='price' name='price' class='form-control'/>
-              </div>   
-              <div class="col">
-                <label for='car_type'>Car Type</label>
-                <select for="car_type" name='car_type' class="form-control">
-                  <option>SUV</option>
-                  <option>Sedan</option>
-                  <option>Hatchback</option>
-                  <option>Subaru</option>
-                </select>
-              </div>   
-            </div>
-
-            <div class="row mb-3">
-              <div class="col-md-6">
-                <label for='transmission'>Transmission</label>
-                <select for="transmission" name='transmission' class="form-control">
-                  <option>Automatic</option>
-                  <option>Standard</option>
-                </select>
-              </div>
-            </div>     
-
-            <div class="mb-3 p-0">
-              <label for='description'>Description</label>
-              <textarea type='description' id='description' name='description' class='form-control' rows="3"/>
-            </div>   
-
-            <div class="col-md-6 mb-3 p-0">
-              <label for='photo'>Upload Photo</label>
-              <input type='file' id='photo' name='photo' class='form-control'>
-            </div>  
-
-            <button type="submit" class="btn btn-primary">Save</button>
-          </form>
+          </div>
         </div>
       </div>
     `,
     data() {
-      return {
-        message: "",
-        errors: [],
-        has_error: false,
-        has_message: false
-      }
-    },
-    methods: {
-
-      new_car() {
-        let self = this;
-        let new_car_form = document.getElementById('new_car_form');
-        let form_data = new FormData(new_car_form);
-
-        fetch('/api/cars', {
-          method: 'POST',
-          body: form_data,
-          headers: {
-            'Authorization': `Bearer ${JSON.parse(localStorage.current_user).token}`,
-            'X-CSRFToken': token
-          },
-          credentials: 'same-origin'
-        })
-        .then(function(response) {
-          return response.json()
-        })
-        .then(function(jsonResponse) {
-          if (jsonResponse.hasOwnProperty("errors")) {
-            self.errors = jsonResponse.errors
-            self.has_error = true
-            console.log(jsonResponse.errors)
-          } else { 
-            self.message = jsonResponse.message
-            self.has_message = true
-            self.has_error = false
-            console.log(jsonResponse.message)
-            setTimeout( () => router.push('/'), 3000)
-          }  
-        })
-        .catch(function(error) {
-          console.log(error)
-        });
-      }
+        return {
+          welcome: 'This will be for Adding a new Car',
+          messages: "",
+          errors: [],
+          has_error: false,
+          has_message: false
+        }
     }
 };
 
