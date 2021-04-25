@@ -1,8 +1,8 @@
 const register = {
     name: 'register',
     template:
-    /*html*/    
-    `
+    /*html*/
+        `
     <div>
         <h1 class="page-header"> 
             Add New User
@@ -59,48 +59,48 @@ const register = {
     </div>
     `,
     data() {
-      return {
-        messages: "",
-        errors: [],
-        has_error: false,
-        has_message: false
-      }
+        return {
+            messages: "",
+            errors: [],
+            has_error: false,
+            has_message: false
+        }
     },
     methods: {
-      register() {
-        let self = this;
-        let registration_form = document.getElementById('registrationform');
-        let form_data = new FormData(registration_form);
+        register() {
+            let self = this;
+            let registration_form = document.getElementById('registrationform');
+            let form_data = new FormData(registration_form);
 
-        fetch('/api/register', {
-          method: 'POST',
-          body: form_data,
-          headers: {
-            'X-CSRFToken': token
-          },
-          credentials: 'same-origin'
-        })
-        .then(function(response) {
-          return response.json()
-        })
-        .then(function(jsonResponse) {
-          if (jsonResponse.hasOwnProperty("errors")) {
-            self.errors = jsonResponse.errors
-            self.has_error = true
-            console.log(jsonResponse.errors)
-          } else { 
-            self.messages = jsonResponse.messages
-            self.has_message = true
-            self.has_error = false
-            console.log(jsonResponse.messages)
-            sessionStorage.message =jsonResponse.messages
-            setTimeout( () => router.push('/login'), 3000)
-          }  
-        })
-        .catch(function(error) {
-          console.log(error)
-        });
-      }
+            fetch('/api/register', {
+                    method: 'POST',
+                    body: form_data,
+                    headers: {
+                        'X-CSRFToken': token
+                    },
+                    credentials: 'same-origin'
+                })
+                .then(function(response) {
+                    return response.json()
+                })
+                .then(function(jsonResponse) {
+                    if (jsonResponse.hasOwnProperty("errors")) {
+                        self.errors = jsonResponse.errors
+                        self.has_error = true
+                        console.log(jsonResponse.errors)
+                    } else {
+                        self.messages = jsonResponse.messages
+                        self.has_message = true
+                        self.has_error = false
+                        console.log(jsonResponse.messages)
+                        sessionStorage.message = jsonResponse.messages
+                        setTimeout(() => router.push('/login'), 3000)
+                    }
+                })
+                .catch(function(error) {
+                    console.log(error)
+                });
+        }
     }
 };
 
@@ -108,7 +108,7 @@ const login = {
     name: 'login',
     template:
     /*html*/
-    `
+        `
       <div class="login-form center-block">
           <h2>Please Log in</h2>
 
@@ -148,84 +148,84 @@ const login = {
       </div>    
     `,
     data() {
-      return {
-        hasMessage: false,
-        hasError: false, 
-        message: "",
-        smessage: sessionStorage.message,
-        errors: []        
-      }
+        return {
+            hasMessage: false,
+            hasError: false,
+            message: "",
+            smessage: sessionStorage.message,
+            errors: []
+        }
     },
     methods: {
-    login: function() {
-      let self = this;
-      let login = document.getElementById('login');
-      let form_data = new FormData(login);
+        login: function() {
+            let self = this;
+            let login = document.getElementById('login');
+            let form_data = new FormData(login);
 
-      fetch('/api/auth/login', {
-        method: 'POST',
-        body: form_data,
-        headers: {
-          'X-CSRFToken': token
-        },
-        credentials: 'same-origin'
-      })
-      .then(function(response) {
-        return response.json();
-      })
-      .then(function(jsonResponse) {
-        // display messages
-        self.hasMessage = true;
-        sessionStorage.removeItem('message')
-        //Error Message
-        if (jsonResponse.hasOwnProperty("errors")) {
-            self.hasError = true;
-            self.message = jsonResponse.errors;
-            console.log(jsonResponse.errors);
-            //Success Message
-        } else {
-          self.hasError = false;
-          self.message = jsonResponse.message;
-          //Stores information on current user
-          currentuser = { "token": jsonResponse.token, "user_name":jsonResponse.user_name ,id: jsonResponse.user_id };
-          localStorage.current_user = JSON.stringify(currentuser);
-          console.log(currentuser);
-          setTimeout( () => router.push('/explore'), 2000)
+            fetch('/api/auth/login', {
+                    method: 'POST',
+                    body: form_data,
+                    headers: {
+                        'X-CSRFToken': token
+                    },
+                    credentials: 'same-origin'
+                })
+                .then(function(response) {
+                    return response.json();
+                })
+                .then(function(jsonResponse) {
+                    // display messages
+                    self.hasMessage = true;
+                    sessionStorage.removeItem('message')
+                        //Error Message
+                    if (jsonResponse.hasOwnProperty("errors")) {
+                        self.hasError = true;
+                        self.message = jsonResponse.errors;
+                        console.log(jsonResponse.errors);
+                        //Success Message
+                    } else {
+                        self.hasError = false;
+                        self.message = jsonResponse.message;
+                        //Stores information on current user
+                        currentuser = { "token": jsonResponse.token, "user_name": jsonResponse.user_name, id: jsonResponse.user_id };
+                        localStorage.current_user = JSON.stringify(currentuser);
+                        console.log(currentuser);
+                        setTimeout(() => router.push('/explore'), 2000)
+                    }
+                })
+                .catch(function(error) {
+                    console.log(error);
+                });
         }
-      })
-      .catch(function(error) {
-        console.log(error);
-      });
     }
-  }
 };
 
 const logout = {
     name: "logout",
     created: function() {
-      let self = this;
+        let self = this;
 
-      fetch("/api/auth/logout", {
-        method: "GET",
-      })
-      .then(function(response) {
-        return response.json();
-      })
-      .then(function(jsonResponse) {
-        hasMessage = true;
-        localStorage.removeItem("current_user");
-        self.message = jsonResponse.message;
-        console.log(jsonResponse.message);
-        router.push('/');
-      })
-      .catch(function(error) {
-        console.log(error);
-      });
+        fetch("/api/auth/logout", {
+                method: "GET",
+            })
+            .then(function(response) {
+                return response.json();
+            })
+            .then(function(jsonResponse) {
+                hasMessage = true;
+                localStorage.removeItem("current_user");
+                self.message = jsonResponse.message;
+                console.log(jsonResponse.message);
+                router.push('/');
+            })
+            .catch(function(error) {
+                console.log(error);
+            });
     },
     data() {
-      return {
-        hasMessage: false
-      }
+        return {
+            hasMessage: false
+        }
     }
 };
 
@@ -233,14 +233,13 @@ const logout = {
 
 /* Add your Application JavaScript */
 const app = Vue.createApp({
-  data() {
-    return {
+    data() {
+        return {}
+    },
+    components: {
+        'register': register,
+        'login': login
     }
-  },
-  components: {
-    'register': register,
-    'login': login
-  }
 });
 
 app.component('app-header', {
@@ -250,7 +249,7 @@ app.component('app-header', {
         `
     <header>
       <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
-        <a class="navbar-brand" href="#">INFO3180-Final Project</a>
+        <a class="navbar-brand" href="#">United Auto Sales</a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
           <span class="navbar-toggler-icon"></span>
         </button>
@@ -290,13 +289,13 @@ app.component('app-header', {
       </nav>
     </header>    
   `,
-  data: function() {
-    return {
-      authenticated_user: localStorage.hasOwnProperty("current_user"),
-      current_user_id: localStorage.hasOwnProperty("current_user") ? JSON.parse(localStorage.current_user).id : null,
-      current_user_name: localStorage.hasOwnProperty("current_user") ? JSON.parse(localStorage.current_user).user_name : null
-    };
-  }
+    data: function() {
+        return {
+            authenticated_user: localStorage.hasOwnProperty("current_user"),
+            current_user_id: localStorage.hasOwnProperty("current_user") ? JSON.parse(localStorage.current_user).id : null,
+            current_user_name: localStorage.hasOwnProperty("current_user") ? JSON.parse(localStorage.current_user).user_name : null
+        };
+    }
 });
 
 const Home = {
@@ -334,8 +333,8 @@ const Home = {
 };
 
 const Explore = {
-  name: 'Explore',
-  template: `
+    name: 'Explore',
+    template: `
   /*html*/
   
   
@@ -354,40 +353,39 @@ const Explore = {
   
   
 `,
-  data: function() {
-    return {
-        allcars: [],
-    }
-  },
-
-  methods: {
-    exploreSearch(){
-      let self = this;
-      fetch('/api/search?searchbymake='+self.searchMake+ '&searchbymodel='+self.searchModel, {
-        method: 'GET',
-        headers:{ 'Authorization': 'Bearer ' + sessionStorage.getItem('token'),'X-CSRFToken': token } 
-      })
-      .then(function (response) {
-        return response.json();
-      })
-      .then(function (jsonResponse) {
-        self.allcars=jsonResponse.searchedcars
-        console.log(jsonResponse);
-      })
-      .catch(function (error) {
-        console.log(error);
-      });
-
+    data: function() {
+        return {
+            allcars: [],
+        }
     },
-  }
+
+    methods: {
+        exploreSearch() {
+            let self = this;
+            fetch('/api/search?searchbymake=' + self.searchMake + '&searchbymodel=' + self.searchModel, {
+                    method: 'GET',
+                    headers: { 'Authorization': 'Bearer ' + sessionStorage.getItem('token'), 'X-CSRFToken': token }
+                })
+                .then(function(response) {
+                    return response.json();
+                })
+                .then(function(jsonResponse) {
+                    self.allcars = jsonResponse.searchedcars
+                    console.log(jsonResponse);
+                })
+                .catch(function(error) {
+                    console.log(error);
+                });
+
+        },
+    }
 };
-      
+
 
 
 const new_car = {
     name: 'cars-new',
-    template:
-    `
+    template: `
       <h1 class="page-header mb-3"><strong>Add New Car</strong></h1>
       <!--Displays Messages-->
       <div class="form_response">
@@ -461,57 +459,58 @@ const new_car = {
       </div>
     `,
     data() {
-      return {
-        message: "",
-        errors: [],
-        has_error: false,
-        has_message: false
-      }
+        return {
+            message: "",
+            errors: [],
+            has_error: false,
+            has_message: false
+        }
     },
     methods: {
 
-      new_car() {
-        let self = this;
-        let new_car_form = document.getElementById('new_car_form');
-        let form_data = new FormData(new_car_form);
+        new_car() {
+            let self = this;
+            let new_car_form = document.getElementById('new_car_form');
+            let form_data = new FormData(new_car_form);
 
-        fetch('/api/cars', {
-          method: 'POST',
-          body: form_data,
-          headers: {
-            'Authorization': `Bearer ${JSON.parse(localStorage.current_user).token}`,
-            'X-CSRFToken': token
-          },
-          credentials: 'same-origin'
-        })
-        .then(function(response) {
-          return response.json()
-        })
-        .then(function(jsonResponse) {
-          if (jsonResponse.hasOwnProperty("errors")) {
-            self.errors = jsonResponse.errors
-            self.has_error = true
-            console.log(jsonResponse.errors)
-          } else { 
-            self.message = jsonResponse.message
-            self.has_message = true
-            self.has_error = false
-            console.log(jsonResponse.message)
-            setTimeout( () => router.push('/'), 3000)
-          }  
-        })
-        .catch(function(error) {
-          console.log(error)
-        });
-      }
+            fetch('/api/cars', {
+                    method: 'POST',
+                    body: form_data,
+                    headers: {
+                        'Authorization': `Bearer ${JSON.parse(localStorage.current_user).token}`,
+                        'X-CSRFToken': token
+                    },
+                    credentials: 'same-origin'
+                })
+                .then(function(response) {
+                    return response.json()
+                })
+                .then(function(jsonResponse) {
+                    if (jsonResponse.hasOwnProperty("errors")) {
+                        self.errors = jsonResponse.errors
+                        self.has_error = true
+                        console.log(jsonResponse.errors)
+                    } else {
+                        self.message = jsonResponse.message
+                        self.has_message = true
+                        self.has_error = false
+                        console.log(jsonResponse.message)
+                        setTimeout(() => router.push('/'), 3000)
+                    }
+                })
+                .catch(function(error) {
+                    console.log(error)
+                });
+        }
     }
 };
 
 
 app.component('app-footer', {
     name: 'AppFooter',
-    template: 
-    /*html*/`
+    template:
+    /*html*/
+        `
       <footer>
           <div class="container">
               <p>Copyright &copy {{ year }} Flask Inc.</p>
@@ -529,13 +528,13 @@ const NotFound = {
     name: 'NotFound',
     template:
     /*html*/
-    `
+        `
       <div>
         <h1>404 - Not Found</h1>
       </div>
     `,
     data() {
-      return {}
+        return {}
     }
 };
 
@@ -545,41 +544,42 @@ const router = VueRouter.createRouter({
     routes: [
         { path: '/', component: Home },
         { path: '/register', component: register },
-        { path: '/explore', 
-          component: Explore, 
-          beforeEnter(to, from, next) {
-            let current_user = (localStorage.current_user);
-            if (current_user) {
-              next();
-            } else {
-              next('/auth/login');
-            }
-          },
-         },
-        { 
-          path: '/cars/new', 
-          component: new_car,
-          beforeEnter(to, from, next) {
-            let current_user = (localStorage.current_user);
-            if (current_user) {
-              next();
-            } else {
-              next('/login');
-            }
-          },
-         },
+        {
+            path: '/explore',
+            component: Explore,
+            beforeEnter(to, from, next) {
+                let current_user = (localStorage.current_user);
+                if (current_user) {
+                    next();
+                } else {
+                    next('/auth/login');
+                }
+            },
+        },
+        {
+            path: '/cars/new',
+            component: new_car,
+            beforeEnter(to, from, next) {
+                let current_user = (localStorage.current_user);
+                if (current_user) {
+                    next();
+                } else {
+                    next('/login');
+                }
+            },
+        },
         { path: '/auth/login', component: login },
-        { 
-          path: '/auth/logout', 
-          component: logout,  
-          beforeEnter(to, from, next) {
-            let current_user = (localStorage.current_user);
-            if (current_user) {
-              next();
-            } else {
-              next('/auth/login');
-            }
-          },
+        {
+            path: '/auth/logout',
+            component: logout,
+            beforeEnter(to, from, next) {
+                let current_user = (localStorage.current_user);
+                if (current_user) {
+                    next();
+                } else {
+                    next('/auth/login');
+                }
+            },
         },
         // This is a catch all route in case none of the above matches
         { path: '/:pathMatch(.*)*', name: 'NotFound', component: NotFound }
