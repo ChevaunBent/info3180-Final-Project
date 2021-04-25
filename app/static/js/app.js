@@ -266,7 +266,7 @@ app.component('app-header', {
               <router-link to="/explore" class="nav-link">Explore</router-link>
             </li>
             <li class="nav-item" v-if="authenticated_user">
-              <router-link to="/newcar" class="nav-link">Add Car</router-link>
+              <router-link to="/cars/new" class="nav-link">Add Car</router-link>
             </li>
             <li class="nav-item">
               <router-link to="/register" class="nav-link">Register</router-link>
@@ -374,19 +374,135 @@ const Explore = {
      }
 };
 
-const NewCar = {
-    name: 'newcar',
+const new_car = {
+    name: 'cars-new',
     template:
     /*html*/
-        `
-        <div class="newcar">
-        <h1>{{ welcome }}</h1>
+    `
+    <div class="newcar">
+      <h1 class="page-header mb-3"><strong>Add New Car</strong></h1>
+
+      <!--Displays Messages-->
+      <div class="form_response">
+        <div>
+          <div v-if="has_message" class="alert alert-success">{{ message }}</div>
+          <ul v-if="has_error" class="alert alert-danger pl-4">
+            <h5> The following errors prohibited the form from submitting: </h5>
+            <li v-for="error in errors" class="pl-2">{{ error }}</li>
+          </ul>
         </div>
-        `,
+      </div>
+
+      <div class="card lift">
+        <div class="card-body">
+          <form id="new_car_form" @submit.prevent="new_car" enctype="multipart/form-data">
+            <div class="row mb-3">
+              <div class="col">
+                <label for='make'>Make</label>
+                <input type='make' id='make' name='make' class='form-control'>
+              </div>   
+              <div class="col">
+                <label for='model'>Model</label>
+                <input type='model' id='model' name='model' class='form-control'>
+              </div>   
+            </div>
+ 
+            <div class="row mb-3">
+              <div class="col">
+                <label for='colour'>Colour</label>
+                <input type='colour' id='colour' name='colour' class='form-control'/>
+              </div>   
+              <div class="col">
+                <label for='year'>Year</label>
+                <input type='number' id='year' name='year' class='form-control'/>
+              </div>   
+            </div>
+
+            <div class="row mb-3">
+              <div class="col">
+                <label for='price'>Price</label>
+                <input type='price' id='price' name='price' class='form-control'/>
+              </div>   
+              <div class="col">
+                <label for='car_type'>Car Type</label>
+                <select for="car_type" name='car_type' class="form-control">
+                  <option>SUV</option>
+                  <option>Sedan</option>
+                  <option>Hatchback</option>
+                  <option>Subaru</option>
+                </select>
+              </div>   
+            </div>
+
+            <div class="row mb-3">
+              <div class="col-md-6">
+                <label for='transmission'>Transmission</label>
+                <select for="transmission" name='transmission' class="form-control">
+                  <option>Automatic</option>
+                  <option>Standard</option>
+                </select>
+              </div>
+            </div>     
+
+            <div class="mb-3 p-0">
+              <label for='description'>Description</label>
+              <textarea type='description' id='description' name='description' class='form-control' rows="3"/>
+            </div>   
+
+            <div class="col-md-6 mb-3 p-0">
+              <label for='photo'>Upload Photo</label>
+              <input type='file' id='photo' name='photo' class='form-control'>
+            </div>  
+
+            <button type="submit" class="btn btn-primary">Save</button>
+          </form>
+        </div>
+      </div>
+    `,
     data() {
-        return {
-            welcome: 'This will be for Adding a new Car'
-        }
+      return {
+        message: "",
+        errors: [],
+        has_error: false,
+        has_message: false
+      }
+    },
+    methods: {
+
+      new_car() {
+        let self = this;
+        let new_car_form = document.getElementById('new_car_form');
+        let form_data = new FormData(new_car_form);
+
+        fetch('/api/cars', {
+          method: 'POST',
+          body: form_data,
+          headers: {
+            'Authorization': `Bearer ${JSON.parse(localStorage.current_user).token}`,
+            'X-CSRFToken': token
+          },
+          credentials: 'same-origin'
+        })
+        .then(function(response) {
+          return response.json()
+        })
+        .then(function(jsonResponse) {
+          if (jsonResponse.hasOwnProperty("errors")) {
+            self.errors = jsonResponse.errors
+            self.has_error = true
+            console.log(jsonResponse.errors)
+          } else { 
+            self.message = jsonResponse.message
+            self.has_message = true
+            self.has_error = false
+            console.log(jsonResponse.message)
+            setTimeout( () => router.push('/'), 3000)
+          }  
+        })
+        .catch(function(error) {
+          console.log(error)
+        });
+      }
     }
 };
 
@@ -414,11 +530,11 @@ const NotFound = {
     /*html*/
     `
       <div>
-          <h1>404 - Not Found</h1>
+        <h1>404 - Not Found</h1>
       </div>
     `,
     data() {
-        return {}
+      return {}
     }
 };
 
@@ -429,7 +545,18 @@ const router = VueRouter.createRouter({
         { path: '/', component: Home },
         { path: '/register', component: register },
         { path: '/explore', component: Explore },
-        { path: '/newcar', component: NewCar },
+        { 
+          path: '/cars/new', 
+          component: new_car,
+          beforeEnter(to, from, next) {
+            let current_user = (localStorage.current_user);
+            if (current_user) {
+              next();
+            } else {
+              next('/login');
+            }
+          },
+         },
         { path: '/login', component: login },
         { path: '/logout', component: logout },
         // This is a catch all route in case none of the above matches
