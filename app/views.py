@@ -57,7 +57,6 @@ def register():
     filename = secure_filename(photo.filename)
     photo.save(os.path.join(upload_folder, filename))
     
-
     name = form.name.data
     email = form.email.data
     location = form.location.data
@@ -113,36 +112,6 @@ def login():
 def logout():
   return jsonify(message="You have been logged out")
 
-@app.route("/api/car", methods=['POST'])
-def newCar(user_id):
-  form = NewCarForm()
-  upload_folder = app.config['UPLOAD_FOLDER']
-  if request.method == "POST" and form.validate_on_submit():
-    photo = form.photo.data
-    filename = secure_filename(photo.filename)
-    photo.save(os.path.join(upload_folder, filename))
-
-    make = form.make.data
-    model = form.model.data
-    colour = form.colour.data
-    year = form.year.data
-    price = form.price.data
-    cartype = form.cartype.data
-    transmission = form.transmission.data
-    description = form.description.data
-        
-    new_Car= Cars(user_id, make, model, colour, year, price, cartype, transmission, description, filename)
-    db.session.add(new_Car)
-    db.session.commit()
-    return jsonify(messages="Congrats! You've added a new Car")
-  else:
-    return jsonify(errors=['Oh oh, something went wrong.'])
-
-"""@app.route("/api/search", methods=["GET"])
-def search(user_id):
-"""
-
-
 
 @app.route('/api/cars', methods=["POST"])
 @token_required
@@ -174,7 +143,6 @@ def new_car(current_user):
       print(exc)
       return jsonify(errors=["Internal error occurred, please try again later"])
   return jsonify(errors=form_errors(form))
-
 
 
 def form_errors(form):
