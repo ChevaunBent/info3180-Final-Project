@@ -229,7 +229,207 @@ const logout = {
     }
 };
 
+const Explore = {
+    name: 'Explore',
+    template:
+    /*html*/
+        `
 
+    <h2>Explore</h2>
+    <div>
+      <label class='pr-2'>Make</label>
+      <input type="text" name="makesearch" v-model="makesearch">
+    </div>
+    <div>
+      <label class='pr-2'>Model</label>
+      <input type="text" name="modelsearch" v-model="modelsearch">
+    </div>
+    <div>
+      <button>Search</button>
+    </div>
+`,
+    data: function() {
+        return {
+            allcars: [],
+        }
+    },
+    methods: {
+        exploreSearch() {
+            let self = this;
+            fetch('/api/search?searchbymake=' + self.searchMake + '&searchbymodel=' + self.searchModel, {
+                    method: 'GET',
+                    headers: { 'Authorization': 'Bearer ' + sessionStorage.getItem('token'), 'X-CSRFToken': token }
+                })
+                .then(function(response) {
+                    return response.json();
+                })
+                .then(function(jsonResponse) {
+                    self.allcars = jsonResponse.searchedcars
+                    console.log(jsonResponse);
+                })
+                .catch(function(error) {
+                    console.log(error);
+                });
+
+        }
+    }
+};
+
+const Home = {
+    name: 'Home',
+    template:
+    /*html*/
+        `
+      <div class="home">
+        <div class="container">
+          <div class="row justify-content-center" style="box-shadow: 2px 2px 10px grey;">
+            <div class="col-md-6 card-body justify-content-center">
+              <h1>{{Header}}</h1>
+              <p>{{welcome}}</p>
+              <div>
+                <router-link class="btn btn-success col-md-3" to="/register">Register</router-link>
+                <router-link class="btn btn-primary col-md-3" style="margin: 10px" to="/auth/login">Login</router-link>
+              </div>
+            </div>
+            <div class="col-md-6 landing-container-child float-clear">
+              <div class= "card">
+                <img class="card-img-top" :src="image" alt="Image of a car" style="margin: 0 auto;">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+`,
+    data() {
+        return {
+            Header: "Buy and Sell Cars Online",
+            welcome: "United Auto Sales provides the fastest, easiest and most user friendly way to buy or sell cars online. Find a great price on the vehicle you want",
+            image: "static/images/home.jpeg"
+        }
+    }
+};
+
+const new_car = {
+    name: 'cars-new',
+    template: `
+    <h1 class="page-header"><strong>Add New Car</strong></h1>
+    <!--Displays Messages-->
+    <div class="form_response">
+      <div>
+        <div v-if="has_message" class="alert alert-success">{{ message }}</div>
+        <ul v-if="has_error" class="alert alert-danger pl-4">
+          <h5> The following errors prohibited the form from submitting: </h5>
+          <li v-for="error in errors" class="pl-2">{{ error }}</li>
+        </ul>
+      </div>
+    </div>
+    <div class="card lift">
+      <div class="card-body">
+        <form id="new_car_form" @submit.prevent="new_car" enctype="multipart/form-data">
+          <div class="row mb-3">
+            <div class="col">
+              <label for='make'>Make</label>
+              <input type='make' id='make' name='make' class='form-control'>
+            </div>   
+            <div class="col">
+              <label for='model'>Model</label>
+              <input type='model' id='model' name='model' class='form-control'>
+            </div>   
+          </div>
+
+          <div class="row mb-3">
+            <div class="col">
+              <label for='colour'>Colour</label>
+              <input type='colour' id='colour' name='colour' class='form-control'/>
+            </div>   
+            <div class="col">
+              <label for='year'>Year</label>
+              <input type='number' id='year' name='year' class='form-control'/>
+            </div>   
+          </div>
+          <div class="row mb-3">
+            <div class="col">
+              <label for='price'>Price</label>
+              <input type='price' id='price' name='price' class='form-control'/>
+            </div>   
+            <div class="col">
+              <label for='car_type'>Car Type</label>
+              <select for="car_type" name='car_type' class="form-control">
+                <option>SUV</option>
+                <option>Sedan</option>
+                <option>Hatchback</option>
+                <option>Subaru</option>
+              </select>
+            </div>   
+          </div>
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <label for='transmission'>Transmission</label>
+              <select for="transmission" name='transmission' class="form-control">
+                <option>Automatic</option>
+                <option>Standard</option>
+              </select>
+            </div>
+          </div>     
+          <div class="mb-3 p-0">
+            <label for='description'>Description</label>
+            <textarea type='description' id='description' name='description' class='form-control' style="min-height: 75px;" rows="3"/>
+          </div>   
+          <div class="col-md-6 mb-3 p-0">
+            <label for='photo'>Upload Photo</label>
+            <input type='file' id='photo' name='photo' class='form-control'>
+          </div>  
+          <button type="submit" class="btn btn-primary">Save</button>
+        </form>
+      </div>
+    </div>
+  `,
+    data() {
+        return {
+            message: "",
+            errors: [],
+            has_error: false,
+            has_message: false
+        }
+    },
+    methods: {
+
+        new_car() {
+            let self = this;
+            let new_car_form = document.getElementById('new_car_form');
+            let form_data = new FormData(new_car_form);
+
+            fetch('/api/cars', {
+                    method: 'POST',
+                    body: form_data,
+                    headers: {
+                        'Authorization': `Bearer ${JSON.parse(localStorage.current_user).token}`,
+                        'X-CSRFToken': token
+                    },
+                    credentials: 'same-origin'
+                })
+                .then(function(response) {
+                    return response.json()
+                })
+                .then(function(jsonResponse) {
+                    if (jsonResponse.hasOwnProperty("errors")) {
+                        self.errors = jsonResponse.errors
+                        self.has_error = true
+                        console.log(jsonResponse.errors)
+                    } else {
+                        self.message = jsonResponse.message
+                        self.has_message = true
+                        self.has_error = false
+                        console.log(jsonResponse.message)
+                        setTimeout(() => router.push('/'), 3000)
+                    }
+                })
+                .catch(function(error) {
+                    console.log(error)
+                });
+        }
+    }
+};
 
 /* Add your Application JavaScript */
 const app = Vue.createApp({
@@ -238,7 +438,10 @@ const app = Vue.createApp({
     },
     components: {
         'register': register,
-        'login': login
+        'login': login,
+        'explore': Explore,
+        'home': Home,
+        'new_car': new_car
     }
 });
 
@@ -297,214 +500,6 @@ app.component('app-header', {
         };
     }
 });
-
-const Home = {
-    name: 'Home',
-    template:
-    /*html*/
-        `
-  <div class="home">
-    <div class="container">
-      <div class="row justify-content-center" style="box-shadow: 2px 2px 10px grey;">
-        <div class="col-md-6 card-body justify-content-center">
-          <h1>{{Header}}</h1>
-          <p>{{welcome}}</p>
-          <div>
-            <router-link class="btn btn-success col-md-3" to="/register">Register</router-link>
-            <router-link class="btn btn-primary col-md-3" style="margin: 10px" to="/auth/login">Login</router-link>
-          </div>
-        </div>
-        <div class="col-md-6 landing-container-child float-clear">
-          <div class= "card">
-            <img class="card-img-top" :src="image" alt="Image of a car" style="margin: 0 auto;">
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-  `,
-    data() {
-        return {
-            Header: "Buy and Sell Cars Online",
-            welcome: "United Auto Sales provides the fastest, easiest and most user friendly way to buy or sell cars online. Find a great price on the vehicle you want",
-            image: "static/images/home.jpeg"
-        }
-    }
-};
-
-const Explore = {
-    name: 'Explore',
-    template: `
-  /*html*/
-  
-  
-  <h2>Explore</h2>
-  <div>
-    <label>Make</label>
-    <input type="text" name="makesearch" v-model="makesearch"
-  </div>
-  <div>
-    <label>Model</label>
-    <input type="text" name="modelsearch" v-model="modelsearch"
-  </div>
-  <div>
-    <button>Search</button>
-  </div>
-  
-  
-`,
-    data: function() {
-        return {
-            allcars: [],
-        }
-    },
-
-    methods: {
-        exploreSearch() {
-            let self = this;
-            fetch('/api/search?searchbymake=' + self.searchMake + '&searchbymodel=' + self.searchModel, {
-                    method: 'GET',
-                    headers: { 'Authorization': 'Bearer ' + sessionStorage.getItem('token'), 'X-CSRFToken': token }
-                })
-                .then(function(response) {
-                    return response.json();
-                })
-                .then(function(jsonResponse) {
-                    self.allcars = jsonResponse.searchedcars
-                    console.log(jsonResponse);
-                })
-                .catch(function(error) {
-                    console.log(error);
-                });
-
-        },
-    }
-};
-
-
-
-const new_car = {
-    name: 'cars-new',
-    template: `
-      <h1 class="page-header mb-3"><strong>Add New Car</strong></h1>
-      <!--Displays Messages-->
-      <div class="form_response">
-        <div>
-          <div v-if="has_message" class="alert alert-success">{{ message }}</div>
-          <ul v-if="has_error" class="alert alert-danger pl-4">
-            <h5> The following errors prohibited the form from submitting: </h5>
-            <li v-for="error in errors" class="pl-2">{{ error }}</li>
-          </ul>
-        </div>
-      </div>
-      <div class="card lift">
-        <div class="card-body">
-          <form id="new_car_form" @submit.prevent="new_car" enctype="multipart/form-data">
-            <div class="row mb-3">
-              <div class="col">
-                <label for='make'>Make</label>
-                <input type='make' id='make' name='make' class='form-control'>
-              </div>   
-              <div class="col">
-                <label for='model'>Model</label>
-                <input type='model' id='model' name='model' class='form-control'>
-              </div>   
-            </div>
- 
-            <div class="row mb-3">
-              <div class="col">
-                <label for='colour'>Colour</label>
-                <input type='colour' id='colour' name='colour' class='form-control'/>
-              </div>   
-              <div class="col">
-                <label for='year'>Year</label>
-                <input type='number' id='year' name='year' class='form-control'/>
-              </div>   
-            </div>
-            <div class="row mb-3">
-              <div class="col">
-                <label for='price'>Price</label>
-                <input type='price' id='price' name='price' class='form-control'/>
-              </div>   
-              <div class="col">
-                <label for='car_type'>Car Type</label>
-                <select for="car_type" name='car_type' class="form-control">
-                  <option>SUV</option>
-                  <option>Sedan</option>
-                  <option>Hatchback</option>
-                  <option>Subaru</option>
-                </select>
-              </div>   
-            </div>
-            <div class="row mb-3">
-              <div class="col-md-6">
-                <label for='transmission'>Transmission</label>
-                <select for="transmission" name='transmission' class="form-control">
-                  <option>Automatic</option>
-                  <option>Standard</option>
-                </select>
-              </div>
-            </div>     
-            <div class="mb-3 p-0">
-              <label for='description'>Description</label>
-              <textarea type='description' id='description' name='description' class='form-control' rows="3"/>
-            </div>   
-            <div class="col-md-6 mb-3 p-0">
-              <label for='photo'>Upload Photo</label>
-              <input type='file' id='photo' name='photo' class='form-control'>
-            </div>  
-            <button type="submit" class="btn btn-primary">Save</button>
-          </form>
-        </div>
-      </div>
-    `,
-    data() {
-        return {
-            message: "",
-            errors: [],
-            has_error: false,
-            has_message: false
-        }
-    },
-    methods: {
-
-        new_car() {
-            let self = this;
-            let new_car_form = document.getElementById('new_car_form');
-            let form_data = new FormData(new_car_form);
-
-            fetch('/api/cars', {
-                    method: 'POST',
-                    body: form_data,
-                    headers: {
-                        'Authorization': `Bearer ${JSON.parse(localStorage.current_user).token}`,
-                        'X-CSRFToken': token
-                    },
-                    credentials: 'same-origin'
-                })
-                .then(function(response) {
-                    return response.json()
-                })
-                .then(function(jsonResponse) {
-                    if (jsonResponse.hasOwnProperty("errors")) {
-                        self.errors = jsonResponse.errors
-                        self.has_error = true
-                        console.log(jsonResponse.errors)
-                    } else {
-                        self.message = jsonResponse.message
-                        self.has_message = true
-                        self.has_error = false
-                        console.log(jsonResponse.message)
-                        setTimeout(() => router.push('/'), 3000)
-                    }
-                })
-                .catch(function(error) {
-                    console.log(error)
-                });
-        }
-    }
-};
-
 
 app.component('app-footer', {
     name: 'AppFooter',
