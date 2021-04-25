@@ -113,6 +113,7 @@ def logout():
   return jsonify(message="You have been logged out")
 
 @app.route('/api/cars/<car_id>', methods=["GET"])
+@token_required
 def get_car(car_id):
   if request.method == "GET":
     print("ssasad",car_id)
