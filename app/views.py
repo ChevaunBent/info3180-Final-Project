@@ -9,8 +9,8 @@ import os, datetime
 from app import app, db, login_manager
 from flask import render_template, request, redirect, url_for, flash, jsonify
 from flask_login import login_user, logout_user, current_user, login_required
-from .forms import *
-from app.models import *
+from .forms import UserRegistrationForm, LoginForm, NewCarForm
+from app.models import Cars, Favourites, Users
 from werkzeug.security import check_password_hash
 from werkzeug.utils import secure_filename
 import jwt
@@ -111,10 +111,36 @@ def login():
       return jsonify(errors=["Username or password is incorrect"])
   return jsonify(errors=form_errors(form))
 
+
 @app.route('/api/auth/logout', methods=["GET"])
 @token_required
 def logout():
   return jsonify(message="You have been logged out")
+
+@app.route("/api/newcar", methods=['POST'])
+def newCar(user_id):
+  form = NewCarForm()
+  upload_folder = app.config['UPLOAD_FOLDER']
+  if request.method == "POST" and form.validate_on_submit():
+    photo = form.photo.data
+    filename = secure_filename(photo.filename)
+    photo.save(os.path.join(upload_folder, filename))
+
+    make = form.make.data
+    model = form.model.data
+    colour = form.colour.data
+    year = form.year.data
+    price = form.price.data
+    cartype = form.cartype.data
+    transmission = form.transmission.data
+    description = form.description.data
+        
+    new_Car= Cars(user_id, make, model, colour, year, price, cartype, transmission, description, filename)
+    db.session.add(new_Car)
+    db.session.commit()
+    return jsonify(messages="Congrats! You've added a new Car")
+
+        
 
 
 def form_errors(form):

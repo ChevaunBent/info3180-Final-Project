@@ -15,3 +15,14 @@ class UserRegistrationForm(FlaskForm):
 class LoginForm(FlaskForm):
   username = StringField('Username', validators=[InputRequired()])
   password = PasswordField('Password', validators=[InputRequired()])
+
+class NewCarForm(FlaskForm):
+  make = StringField('Make', validators=[InputRequired()])
+  model = StringField('Model', validators=[InputRequired()])
+  colour = StringField('Colour', validators=[InputRequired()])
+  year = StringField('Year', validators=[InputRequired()])
+  price = StringField('Price', validators=[InputRequired()])
+  cartype = StringField('Car Type', validators=[InputRequired()])
+  transmission = StringField('Transmission', validators=[InputRequired()])
+  description = TextAreaField('Description', validators=[InputRequired()])
+  photo = FileField('Upload Photo', validators=[FileRequired(),FileAllowed(['jpg', 'jpeg', 'png'],'Images Only!')])
