@@ -145,7 +145,6 @@ def new_car(current_user):
   return jsonify(errors=form_errors(form))
 
 
-<<<<<<< HEAD
 @app.route('/api/users/<user_id>', methods =['GET'])
 @token_required
 def user(user_id):
@@ -159,8 +158,6 @@ def user(user_id):
     return jsonify(response)
 
 
-=======
->>>>>>> 1deaac0dc03801804049064634511307aa6f4331
 def form_errors(form):
   error_messages = []
   for field, errors in form.errors.items():
