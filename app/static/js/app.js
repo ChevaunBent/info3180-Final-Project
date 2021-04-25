@@ -1,27 +1,123 @@
 const register = {
-  name: 'register',
-  template:
-  /*html*/    
-  `
-  <div>
-      <h1 class="page-header"> 
-          Add New User
-      </h1>
-      <!--Displays Messages-->
-      <div class="form_response">
-        <div>
-          <div v-if="has_message" class="alert alert-success">{{ messages }}</div>
-          <ul v-if="has_error" class="alert alert-danger pl-4">
-            <h5> The following errors prohibited the form from submitting: </h5>
-            <li v-for="error in errors" class="pl-2">{{ error }}</li>
-          </ul>
-        </div>
-      </div>
-      <form @submit.prevent='register' id ="registrationform" method = 'POST' enctype="multipart/form-data">
+    name: 'register',
+    template:
+    /*html*/
+        `
+    <div>
+        <h1 class="page-header"> 
+            Add New User
+        </h1>
+
+        <!--Displays Messages-->
+        <div class="form_response">
           <div>
-              <div class="col-12 form-group">
-                  <label for = 'name'> Name </label>
-                  <input type="text" name="name" id="name" class="form-control mb-2 mr-sm-2" placeholder="Enter Name here">
+            <div v-if="has_message" class="alert alert-success">{{ messages }}</div>
+            <ul v-if="has_error" class="alert alert-danger pl-4">
+              <h5> The following errors prohibited the form from submitting: </h5>
+              <li v-for="error in errors" class="pl-2">{{ error }}</li>
+            </ul>
+          </div>
+        </div>
+
+        <form @submit.prevent='register' id ="registrationform" method = 'POST' enctype="multipart/form-data">
+            <div>
+                <div class="col-12 form-group">
+                    <label for = 'name'> Name </label>
+                    <input type="text" name="name" id="name" class="form-control mb-2 mr-sm-2" placeholder="Enter Name here">
+                </div>
+                <div class="col-12 form-group">
+                    <label for = 'email'> Email </label>
+                    <input type="text" name="email" id="email" class="form-control mb-2 mr-sm-2" placeholder="Enter Email here">
+                </div>
+                <div class="col-12 form-group">
+                    <label for = 'location'> Location </label>
+                    <input type="text" name="location" id="location" class="form-control mb-2 mr-sm-2" placeholder="Enter Location here">
+                </div>
+                <div class="col-12 form-group">
+                    <label for = 'biography'> Biography </label>
+                    <textarea type="text" name="biography" id="biography" class="form-control mb-2 mr-sm-2" style='min-height: 10rem; height:10rem;' placeholder="Enter Biography here"></textarea>
+                </div>
+                <div class="col-12 form-group">
+                    <label for = 'username'> Username </label>
+                    <input type="text" name="username" id="username" class="form-control mb-2 mr-sm-2" placeholder="Enter Username here">
+                </div>
+                <div class="col-12 form-group">
+                    <label for = 'password'> Password </label>
+                    <input type="password" name="password" id="password" class="form-control mb-2 mr-sm-2">
+                </div>
+                <div class="form-group">
+                    <div class="col-sm-6">
+                        <label for = 'photo'> Select a photo: </label> <br>
+                        <input type='file' name = 'photo'> <br>
+                    </div>
+                </div>
+                <div class="col-12">
+                    <button class='btn btn-primary' type='submit'> Submit </button>
+                </div>
+            </div>
+        </form>
+    </div>
+    `,
+    data() {
+        return {
+            messages: "",
+            errors: [],
+            has_error: false,
+            has_message: false
+        }
+    },
+    methods: {
+        register() {
+            let self = this;
+            let registration_form = document.getElementById('registrationform');
+            let form_data = new FormData(registration_form);
+
+            fetch('/api/register', {
+                    method: 'POST',
+                    body: form_data,
+                    headers: {
+                        'X-CSRFToken': token
+                    },
+                    credentials: 'same-origin'
+                })
+                .then(function(response) {
+                    return response.json()
+                })
+                .then(function(jsonResponse) {
+                    if (jsonResponse.hasOwnProperty("errors")) {
+                        self.errors = jsonResponse.errors
+                        self.has_error = true
+                        console.log(jsonResponse.errors)
+                    } else {
+                        self.messages = jsonResponse.messages
+                        self.has_message = true
+                        self.has_error = false
+                        console.log(jsonResponse.messages)
+                        sessionStorage.message = jsonResponse.messages
+                        setTimeout(() => router.push('/login'), 3000)
+                    }
+                })
+                .catch(function(error) {
+                    console.log(error)
+                });
+        }
+    }
+};
+
+const login = {
+    name: 'login',
+    template:
+    /*html*/
+        `
+      <div class="login-form center-block">
+          <h2>Please Log in</h2>
+
+          <!--Displays Messages-->
+          <div v-if='hasMessage || smessage'>
+              <div v-if="!hasError && hasMessage">
+                  <div class="alert alert-success" >
+                          {{ message }}
+                  </div>
               </div>
               <div class="col-12 form-group">
                   <label for = 'email'> Email </label>
@@ -53,175 +149,99 @@ const register = {
                   <button class='btn btn-primary' type='submit'> Submit </button>
               </div>
           </div>
-      </form>
-  </div>
-  `,
-  data() {
-    return {
-      messages: "",
-      errors: [],
-      has_error: false,
-      has_message: false
-    }
-  },
-  methods: {
-    register() {
-      let self = this;
-      let registration_form = document.getElementById('registrationform');
-      let form_data = new FormData(registration_form);
 
-      fetch('/api/register', {
-        method: 'POST',
-        body: form_data,
-        headers: {
-          'X-CSRFToken': token
-        },
-        credentials: 'same-origin'
-      })
-      .then(function(response) {
-        return response.json()
-      })
-      .then(function(jsonResponse) {
-        if (jsonResponse.hasOwnProperty("errors")) {
-          self.errors = jsonResponse.errors
-          self.has_error = true
-          console.log(jsonResponse.errors)
-        } else { 
-          self.messages = jsonResponse.messages
-          self.has_message = true
-          self.has_error = false
-          console.log(jsonResponse.messages)
-          sessionStorage.message =jsonResponse.messages
-          setTimeout( () => router.push('/login'), 3000)
-        }  
-      })
-      .catch(function(error) {
-        console.log(error)
-      });
-    }
-  }
-};
+          <form @submit.prevent='login' id = 'login' method = 'POST' enctype="multipart/form-data">
+          <div class="col-12 form-group">
+              <label for = 'username'> Username </label>
+              <input type="text" name="username" id="username" class="form-control mb-2 mr-sm-2" placeholder="Enter Username here">
+          </div>
+          <div class="col-12 form-group">
+              <label for = 'password'> Password </label>
+              <input type="password" name="password" id="password" class="form-control mb-2 mr-sm-2">
+          </div>
+          <button type="submit" name="submit" class="btn btn-primary btn-block">Log in</button>
+          </form>
+      </div>    
+    `,
+    data() {
+        return {
+            hasMessage: false,
+            hasError: false,
+            message: "",
+            smessage: sessionStorage.message,
+            errors: []
+        }
+    },
+    methods: {
+        login: function() {
+            let self = this;
+            let login = document.getElementById('login');
+            let form_data = new FormData(login);
 
-const login = {
-  name: 'login',
-  template:
-  /*html*/
-  `
-    <div class="login-form center-block">
-        <h2>Please Log in</h2>
-          <!--Displays Messages-->
-          <div v-if='hasMessage || smessage!= "undefined"'>
-              <div v-if="!hasError && hasMessage">
-                  <div class="alert alert-success" >
-                          {{ message }}
-                </div>
-            </div>
-            <div v-else-if="!hasError && smessage">
-              <div class="alert alert-success" >
-                  {{smessage}}
-              </div>
-            </div>
-            <div v-else-if="hasError" >
-            <ul class="alert alert-danger">
-                <h5> The following errors prohibited the form from submitting: </h5>
-                <li v-for="error in message">
-                        {{ error }}
-                    </li>
-                </ul>
-            </div>
-        </div>
-        <form @submit.prevent='login' id = 'login' method = 'POST' enctype="multipart/form-data">
-        <div class="col-12 form-group">
-            <label for = 'username'> Username </label>
-            <input type="text" name="username" id="username" class="form-control mb-2 mr-sm-2" placeholder="Enter Username here">
-        </div>
-        <div class="col-12 form-group">
-            <label for = 'password'> Password </label>
-            <input type="password" name="password" id="password" class="form-control mb-2 mr-sm-2">
-        </div>
-        <button type="submit" name="submit" class="btn btn-primary btn-block">Log in</button>
-        </form>
-    </div>    
-  `,
-  data() {
-    return {
-      hasMessage: false,
-      hasError: false, 
-      message: "",
-      smessage: sessionStorage.message,
-      errors: []        
+            fetch('/api/auth/login', {
+                    method: 'POST',
+                    body: form_data,
+                    headers: {
+                        'X-CSRFToken': token
+                    },
+                    credentials: 'same-origin'
+                })
+                .then(function(response) {
+                    return response.json();
+                })
+                .then(function(jsonResponse) {
+                    // display messages
+                    self.hasMessage = true;
+                    sessionStorage.removeItem('message')
+                        //Error Message
+                    if (jsonResponse.hasOwnProperty("errors")) {
+                        self.hasError = true;
+                        self.message = jsonResponse.errors;
+                        console.log(jsonResponse.errors);
+                        //Success Message
+                    } else {
+                        self.hasError = false;
+                        self.message = jsonResponse.message;
+                        //Stores information on current user
+                        currentuser = { "token": jsonResponse.token, "user_name": jsonResponse.user_name, id: jsonResponse.user_id };
+                        localStorage.current_user = JSON.stringify(currentuser);
+                        console.log(currentuser);
+                        setTimeout(() => router.push('/explore'), 2000)
+                    }
+                })
+                .catch(function(error) {
+                    console.log(error);
+                });
+        }
     }
-  },
-  methods: {
-  login: function() {
-    let self = this;
-    let login = document.getElementById('login');
-    let form_data = new FormData(login);
-
-    fetch('/api/auth/login', {
-      method: 'POST',
-      body: form_data,
-      headers: {
-        'X-CSRFToken': token
-      },
-      credentials: 'same-origin'
-    })
-    .then(function(response) {
-      return response.json();
-    })
-    .then(function(jsonResponse) {
-      // display messages
-      self.hasMessage = true;
-      sessionStorage.removeItem('message')
-      //Error Message
-      if (jsonResponse.hasOwnProperty("errors")) {
-          self.hasError = true;
-          self.message = jsonResponse.errors;
-          console.log(jsonResponse.errors);
-          //Success Message
-      } else {
-        self.hasError = false;
-        self.message = jsonResponse.message;
-        //Stores information on current user
-        currentuser = { "token": jsonResponse.token, "user_name":jsonResponse.user_name ,id: jsonResponse.user_id };
-        localStorage.current_user = JSON.stringify(currentuser);
-        sessionStorage.message = jsonResponse.message;
-        setTimeout( () => history.go(),router.push('/explore'), 2000)
-      }
-    })
-    .catch(function(error) {
-      console.log(error);
-    });
-  }
-}
 };
 
 const logout = {
-  name: "logout",
-  created: function() {
-    let self = this;
+    name: "logout",
+    created: function() {
+        let self = this;
 
-    fetch("/api/auth/logout", {
-      method: "GET",
-    })
-    .then(function(response) {
-      return response.json();
-    })
-    .then(function(jsonResponse) {
-      hasMessage = true;
-      localStorage.clear();
-      sessionStorage.clear();
-      self.message = jsonResponse.message;
-      console.log(jsonResponse.message);
-      setTimeout( () => history.go(), router.push('/'), 200);
-    })
-    .catch(function(error) {
-      console.log(error);
-    });
-  },
-  data() {
-    return {
-      hasMessage: false
+        fetch("/api/auth/logout", {
+                method: "GET",
+            })
+            .then(function(response) {
+                return response.json();
+            })
+            .then(function(jsonResponse) {
+                hasMessage = true;
+                localStorage.removeItem("current_user");
+                self.message = jsonResponse.message;
+                console.log(jsonResponse.message);
+                router.push('/');
+            })
+            .catch(function(error) {
+                console.log(error);
+            });
+    },
+    data() {
+        return {
+            hasMessage: false
+        }
     }
   }
 };
@@ -230,14 +250,13 @@ const logout = {
 
 /* Add your Application JavaScript */
 const app = Vue.createApp({
-  data() {
-    return {
+    data() {
+        return {}
+    },
+    components: {
+        'register': register,
+        'login': login
     }
-  },
-  components: {
-    'register': register,
-    'login': login
-  }
 });
 
 app.component('app-header', {
@@ -247,7 +266,7 @@ app.component('app-header', {
         `
     <header>
       <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
-        <a class="navbar-brand" href="#">INFO3180-Final Project</a>
+        <a class="navbar-brand" href="#">United Auto Sales</a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
           <span class="navbar-toggler-icon"></span>
         </button>
@@ -290,13 +309,13 @@ app.component('app-header', {
       </nav>
     </header>    
   `,
-  data: function() {
-    return {
-      authenticated_user: localStorage.hasOwnProperty("current_user"),
-      current_user_id: localStorage.hasOwnProperty("current_user") ? JSON.parse(localStorage.current_user).id : null,
-      current_user_name: localStorage.hasOwnProperty("current_user") ? JSON.parse(localStorage.current_user).user_name : null
-    };
-  }
+    data: function() {
+        return {
+            authenticated_user: localStorage.hasOwnProperty("current_user"),
+            current_user_id: localStorage.hasOwnProperty("current_user") ? JSON.parse(localStorage.current_user).id : null,
+            current_user_name: localStorage.hasOwnProperty("current_user") ? JSON.parse(localStorage.current_user).user_name : null
+        };
+    }
 });
 
 const Home = {
@@ -362,17 +381,9 @@ const Explore = {
         </div>
       </div>
       `,
-    data() {
+      data: function() {
         return {
-            welcome: 'This will be for Exploring/Viewing all posts by users',
-            Header: "Search Box",
-            Header: "Search Box",
-            smessage: sessionStorage.message,
-            cars: [
-              {
-                
-              }
-            ]
+            allcars: [],
         }
     },
     created: function () {
@@ -380,74 +391,147 @@ const Explore = {
       
      },
     methods: {
-      viewAllCars(){
-        
-      }
+        exploreSearch() {
+            let self = this;
+            fetch('/api/search?searchbymake=' + self.searchMake + '&searchbymodel=' + self.searchModel, {
+                    method: 'GET',
+                    headers: { 'Authorization': 'Bearer ' + sessionStorage.getItem('token'), 'X-CSRFToken': token }
+                })
+                .then(function(response) {
+                    return response.json();
+                })
+                .then(function(jsonResponse) {
+                    self.allcars = jsonResponse.searchedcars
+                    console.log(jsonResponse);
+                })
+                .catch(function(error) {
+                    console.log(error);
+                });
+
+        },
     }
 };
 
+
+
 const new_car = {
     name: 'cars-new',
-    template:
-    /*html*/
-        `
-        <div class="newcar">
-          <div class= "container">
-            <h1>{{ welcome }}</h1>
-            <div class="card">
-              <form method='POST>
-                <div class="col-12 form-group">
-                  <label for='make'> Make </label>
-                  <input type="text" name="make" placeholder="Telsa">
-
-                  <label for='model'> Model </label>
-                  <input type="text" name="model" placeholder="Model S">
-
-                  <label for='colour'> Colour </label>
-                  <input type="text" name="colour" placeholder="Red">
-
-                  <label for='year'> Year </label>
-                  <input type="number" name="year" placeholder="2018">
-
-                  <label for='price'> Price </label>
-                  <input type="number" name="price" placeholder="62888">
-
-                  <label for='cartype'> Car Type </label>
-                  <select id="cartype" name="cartype">
-                    <option value="suv">SUV</option>
-                    <option value="volvo">VOLVO</option>
-                    <option value="audi">Audi</option>
-                  </select>
-
-                  <label for='transmission'> Transmission </label>
-                  <select id="transmission" name="transmission">
-                    <option value="automatic">Automatic</option>
-                    <option value="manual">Manual</option>
-                    <option value="semi-automatic">Semi-automatic</option>
-                  </select>
-
-
-                  <label for='description'> Description </label>
-                  <textarea id="description" name="description" rows="7" cols="80"></texxtarea>
-
-                  <label for = 'photo'>Select a photo: </label> <br>
-                  <input type='file' name = 'photo'> <br>
-
-                  <input type="submit" value="Save">
-                </div>
-              </form>
+    template: `
+      <h1 class="page-header mb-3"><strong>Add New Car</strong></h1>
+      <!--Displays Messages-->
+      <div class="form_response">
+        <div>
+          <div v-if="has_message" class="alert alert-success">{{ message }}</div>
+          <ul v-if="has_error" class="alert alert-danger pl-4">
+            <h5> The following errors prohibited the form from submitting: </h5>
+            <li v-for="error in errors" class="pl-2">{{ error }}</li>
+          </ul>
+        </div>
+      </div>
+      <div class="card lift">
+        <div class="card-body">
+          <form id="new_car_form" @submit.prevent="new_car" enctype="multipart/form-data">
+            <div class="row mb-3">
+              <div class="col">
+                <label for='make'>Make</label>
+                <input type='make' id='make' name='make' class='form-control'>
+              </div>   
+              <div class="col">
+                <label for='model'>Model</label>
+                <input type='model' id='model' name='model' class='form-control'>
+              </div>   
             </div>
-          </div>
+ 
+            <div class="row mb-3">
+              <div class="col">
+                <label for='colour'>Colour</label>
+                <input type='colour' id='colour' name='colour' class='form-control'/>
+              </div>   
+              <div class="col">
+                <label for='year'>Year</label>
+                <input type='number' id='year' name='year' class='form-control'/>
+              </div>   
+            </div>
+            <div class="row mb-3">
+              <div class="col">
+                <label for='price'>Price</label>
+                <input type='price' id='price' name='price' class='form-control'/>
+              </div>   
+              <div class="col">
+                <label for='car_type'>Car Type</label>
+                <select for="car_type" name='car_type' class="form-control">
+                  <option>SUV</option>
+                  <option>Sedan</option>
+                  <option>Hatchback</option>
+                  <option>Subaru</option>
+                </select>
+              </div>   
+            </div>
+            <div class="row mb-3">
+              <div class="col-md-6">
+                <label for='transmission'>Transmission</label>
+                <select for="transmission" name='transmission' class="form-control">
+                  <option>Automatic</option>
+                  <option>Standard</option>
+                </select>
+              </div>
+            </div>     
+            <div class="mb-3 p-0">
+              <label for='description'>Description</label>
+              <textarea type='description' id='description' name='description' class='form-control' rows="3"/>
+            </div>   
+            <div class="col-md-6 mb-3 p-0">
+              <label for='photo'>Upload Photo</label>
+              <input type='file' id='photo' name='photo' class='form-control'>
+            </div>  
+            <button type="submit" class="btn btn-primary">Save</button>
+          </form>
         </div>
       </div>
     `,
     data() {
         return {
-          welcome: 'This will be for Adding a new Car',
-          messages: "",
-          errors: [],
-          has_error: false,
-          has_message: false
+            message: "",
+            errors: [],
+            has_error: false,
+            has_message: false
+        }
+    },
+    methods: {
+
+        new_car() {
+            let self = this;
+            let new_car_form = document.getElementById('new_car_form');
+            let form_data = new FormData(new_car_form);
+
+            fetch('/api/cars', {
+                    method: 'POST',
+                    body: form_data,
+                    headers: {
+                        'Authorization': `Bearer ${JSON.parse(localStorage.current_user).token}`,
+                        'X-CSRFToken': token
+                    },
+                    credentials: 'same-origin'
+                })
+                .then(function(response) {
+                    return response.json()
+                })
+                .then(function(jsonResponse) {
+                    if (jsonResponse.hasOwnProperty("errors")) {
+                        self.errors = jsonResponse.errors
+                        self.has_error = true
+                        console.log(jsonResponse.errors)
+                    } else {
+                        self.message = jsonResponse.message
+                        self.has_message = true
+                        self.has_error = false
+                        console.log(jsonResponse.message)
+                        setTimeout(() => router.push('/'), 3000)
+                    }
+                })
+                .catch(function(error) {
+                    console.log(error)
+                });
         }
     }
 };
@@ -503,8 +587,9 @@ const Profile = ("profile",{
 
 app.component('app-footer', {
     name: 'AppFooter',
-    template: 
-    /*html*/`
+    template:
+    /*html*/
+        `
       <footer>
           <div class="container">
               <p>Copyright &copy {{ year }} Flask Inc.</p>
@@ -522,13 +607,13 @@ const NotFound = {
     name: 'NotFound',
     template:
     /*html*/
-    `
+        `
       <div>
         <h1>404 - Not Found</h1>
       </div>
     `,
     data() {
-      return {}
+        return {}
     }
 };
 
@@ -539,41 +624,42 @@ const router = VueRouter.createRouter({
         { path: '/', component: Home },
         { path: '/register', component: register },
         { path: "/users/:user_id", name:"users",component: Profile},
-        { path: '/explore', 
-          component: Explore, 
-          beforeEnter(to, from, next) {
-            let current_user = (localStorage.current_user);
-            if (current_user) {
-              next();
-            } else {
-              next('/auth/login');
-            }
-          },
-         },
-        { 
-          path: '/cars/new', 
-          component: new_car,
-          beforeEnter(to, from, next) {
-            let current_user = (localStorage.current_user);
-            if (current_user) {
-              next();
-            } else {
-              next('/login');
-            }
-          },
-         },
+        {
+            path: '/explore',
+            component: Explore,
+            beforeEnter(to, from, next) {
+                let current_user = (localStorage.current_user);
+                if (current_user) {
+                    next();
+                } else {
+                    next('/auth/login');
+                }
+            },
+        },
+        {
+            path: '/cars/new',
+            component: new_car,
+            beforeEnter(to, from, next) {
+                let current_user = (localStorage.current_user);
+                if (current_user) {
+                    next();
+                } else {
+                    next('/login');
+                }
+            },
+        },
         { path: '/auth/login', component: login },
-        { 
-          path: '/auth/logout', 
-          component: logout,  
-          beforeEnter(to, from, next) {
-            let current_user = (localStorage.current_user);
-            if (current_user) {
-              next();
-            } else {
-              next('/auth/login');
-            }
-          },
+        {
+            path: '/auth/logout',
+            component: logout,
+            beforeEnter(to, from, next) {
+                let current_user = (localStorage.current_user);
+                if (current_user) {
+                    next();
+                } else {
+                    next('/auth/login');
+                }
+            },
         },
         // This is a catch all route in case none of the above matches
         { path: '/:pathMatch(.*)*', name: 'NotFound', component: NotFound }
