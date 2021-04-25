@@ -343,7 +343,7 @@ const Explore = {
         `
       <div class="explore">
         <!--Displays Messages-->
-        <div v-if='smessage != "undefined"'>
+        <div v-if='smessage != undefined'>
             <div class="alert alert-success" >
               {{ smessage }}
             </div>
@@ -368,7 +368,10 @@ const Explore = {
             Header: "Search Box",
             smessage: sessionStorage.message
         }
-    }
+    },
+    created: function () {
+      setTimeout( () => sessionStorage.clear(), 120)
+     }
 };
 
 const NewCar = {
