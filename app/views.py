@@ -24,16 +24,20 @@ def token_required(f):
 
       if not token:
         return jsonify({'error' : 'Token missing'}), 401
- 
+
       try:
         data = jwt.decode(token.split(" ")[1], app.config['SECRET_KEY'])
         current_user = Users.query.filter_by(username=data['user']).first()
-
         if not current_user:
           return jsonify({'error': 'Access Deined'}), 401
-        return  f(current_user, *args, **kwargs)
-      except:
+
+      except jwt.exceptions.InvalidSignatureError:
         return jsonify({'error' : 'Token is invalid'}), 401
+      
+      except jwt.exceptions.DecodeError:
+        return jsonify({'error' : 'Token is invalid'}), 401   
+
+      return  f(current_user, *args, **kwargs) 
   return decorated
 
 @app.route('/', defaults={'path': ''})
@@ -151,7 +155,7 @@ def get_car(current_user, car_id):
   if request.method == "GET":
     car = Cars.query.filter_by(id=car_id).first() 
     if not car: 
-      return jsonify(error="Car not found")
+      return jsonify(errors=["Car not found"])
 
     _car = {
       'id': car.id,
@@ -167,6 +171,24 @@ def get_car(current_user, car_id):
       'user_id': car.user_id,
     }
     return  jsonify(car=_car)
+
+@app.route('/api/cars/<car_id>/favourite', methods=["POST"])
+@token_required
+def favourite_car(current_user, car_id):
+  if request.method == "POST":
+    favourite = Favourites.query.filter_by(user_id=current_user.id, car_id=car_id).first() 
+
+    if not favourite:
+      new_favourite = Favourites(car_id, current_user.id)
+      try:
+        db.session.add(new_favourite)
+        db.session.commit()
+        return jsonify(message="Car favourited successfully")
+      except Exception as exc: 
+        db.session.rollback()
+        print(exc)
+        return jsonify(errors=["Internal error occurred, please try again later"])
+    return jsonify(errors=["Already favourited"])
 
 
 def form_errors(form):

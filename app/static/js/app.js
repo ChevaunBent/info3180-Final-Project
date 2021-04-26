@@ -438,6 +438,16 @@ const view_car = {
     /*html*/
     ` 
       <div class="col-12 py-5">
+        <!--Displays Messages-->
+        <div class="form_response">
+          <div>
+            <div v-if="has_message" class="alert alert-success">{{ message }}</div>
+            <ul v-if="has_error" class="alert alert-danger pl-4">
+              <div v-for="error in errors" class="pl-2">{{ error }}</div>
+            </ul>
+          </div>
+        </div>
+
         <div class="card">
           <div class="row">
             <div class="col-6">
@@ -465,7 +475,7 @@ const view_car = {
                 <div class="">
                   <div class="d-flex">
                     <a href="#" class="btn btn-primary">Email Owner</a>
-                    <a href="#" class="btn btn-circle ms-auto btn-secondary">
+                    <a v-on:click="favourite(car)" class="btn btn-circle ms-auto btn-secondary">
                     <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-heart" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                        <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                        <path d="M19.5 13.572l-7.5 7.428l-7.5 -7.428m0 0a5 5 0 1 1 7.5 -6.566a5 5 0 1 1 7.5 6.572"></path>
@@ -482,7 +492,10 @@ const view_car = {
     data() {
       return {
         car: "",
-        error: ""
+        errors: [],
+        has_error: false,
+        has_message: false,
+        message: ""
       }
     }, 
     created() {
@@ -496,14 +509,52 @@ const view_car = {
       .then(function(response) {
         return response.json();
       })
-      .then(function(data) {
-        console.log(data);
-        self.car = data.car
+      .then(function(jsonResponse) {
+        if (jsonResponse.hasOwnProperty("errors")) {
+            self.errors = jsonResponse.errors
+            self.has_error = true
+            console.log(jsonResponse.errors)
+        } else {
+            console.log(jsonResponse);
+            self.car = jsonResponse.car            
+            self.has_error = false
+        }
       })
       .catch(function(error) {
           console.log(error)
       });
     },
+    methods: {
+        favourite(car) {
+            let self = this;
+            fetch(`/api/cars/${car.id}/favourite`, {
+                method: "POST",
+                headers: {
+                    'Authorization': `Bearer ${JSON.parse(localStorage.current_user).token}`,
+                    'X-CSRFToken': token
+                },
+                credentials: 'same-origin',
+            })
+            .then(function(response) {
+                return response.json();
+            })
+            .then(function(jsonResponse) {
+                if (jsonResponse.hasOwnProperty("errors")) {
+                    self.errors = jsonResponse.errors
+                    self.has_error = true
+                    console.log(jsonResponse.errors)
+                } else {
+                    console.log(jsonResponse);
+                    self.message = jsonResponse.message            
+                    self.has_error = false
+                    self.has_message = true
+                }
+            })
+            .catch(function(error) {
+              console.log(error)
+            });
+        }
+    }
 };
 
 
