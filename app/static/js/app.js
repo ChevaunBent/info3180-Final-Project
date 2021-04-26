@@ -432,6 +432,78 @@ const new_car = {
     }
 };
 
+const view_car = {
+    name: 'view_car',
+    template:
+    /*html*/
+    ` 
+      <div class="col-12 py-5">
+        <div class="card">
+          <div class="row">
+            <div class="col-6">
+              <img :src="'../static/uploads/'+car.photo" class="w-100 h-100 object-cover" alt="photo-of-{{car.model}}">
+            </div>
+            <div class="col">
+              <div class="card-body">
+                <h3 class="card-title font-weight-bold">{{ car.year }} {{ car.make }}</h3>
+                <h4 class="font-weight-bold text-muted">{{ car.model }}</h4> 
+                
+                <div>{{ car.description }}</div>
+                <div class="row m-0 mt-4 mb-4">
+                  <div class="card-text d-flex align-items-center me-4">
+                    <div class="">
+                      <p class="font-weight-bold col pl-0"><span class="text-muted">Color</span> <span class="ml-2">{{ car.colour }}</span> </p> 
+                      <p class="font-weight-bold col pl-0"><span class="text-muted">Color</span> <span class="ml-2">{{ car.colour }}</span> </p> 
+                      
+                    </div>
+                    <div>
+                      <p class="font-weight-bold col pl-0"><span class="text-muted">Color</span> <span class="ml-2">{{ car.colour }}</span> </p> 
+                      <p class="font-weight-bold col pl-0"><span class="text-muted">Color</span> <span class="ml-2">{{ car.colour }}</span> </p> 
+                    </div>
+                  </div>
+                </div><!--/.row-->
+                <div class="">
+                  <div class="d-flex">
+                    <a href="#" class="btn btn-primary">Email Owner</a>
+                    <a href="#" class="btn btn-circle ms-auto btn-secondary">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-heart" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                       <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                       <path d="M19.5 13.572l-7.5 7.428l-7.5 -7.428m0 0a5 5 0 1 1 7.5 -6.566a5 5 0 1 1 7.5 6.572"></path>
+                    </svg>
+       34             </a>
+                  </div>
+                </div>
+              </div><!--/.card-body-->
+            </div>
+          </div>
+        </div><!--/.card-->
+      </div>
+    `,
+    data() {
+      return {
+        car: "",
+        error: ""
+      }
+    }, 
+    created() {
+      let self = this;
+      fetch(`/api/cars/${self.$route.params.car_id}`, {
+        method: "GET",
+        headers: {
+          'Authorization': `Bearer ${JSON.parse(localStorage.current_user).token}`,
+        }
+      })
+      .then(function(response) {
+        return response.json();
+      })
+      .then(function(data) {
+        console.log(data);
+        self.car = data.car
+      });
+    },
+};
+
+
 const Profile = ("profile",{
   name: "profile",
   template: 
@@ -518,7 +590,7 @@ app.component('app-header', {
             <li class="nav-item" v-if="authenticated_user">
               <router-link to="/cars/new" class="nav-link">Add Car</router-link>
             </li>
-            <li class="nav-item">
+            <li class="nav-item" v-if="!authenticated_user">
               <router-link to="/register" class="nav-link">Register</router-link>
             </li>
           </ul>
@@ -590,43 +662,53 @@ const router = VueRouter.createRouter({
     routes: [
         { path: '/', component: Home },
         { path: '/register', component: register },
-        { path: "/users/:user_id", name: "users", component: Profile },
-        {
-            path: '/explore',
-            component: Explore,
-            beforeEnter(to, from, next) {
-                let current_user = (localStorage.current_user);
-                if (current_user) {
-                    next();
-                } else {
-                    next('/auth/login');
-                }
-            },
-        },
-        {
-            path: '/cars/new',
-            component: new_car,
-            beforeEnter(to, from, next) {
-                let current_user = (localStorage.current_user);
-                if (current_user) {
-                    next();
-                } else {
-                    next('/auth/login');
-                }
-            },
-        },
+        { path: '/explore', 
+          component: Explore, 
+          beforeEnter(to, from, next) {
+            let current_user = (localStorage.current_user);
+            if (current_user) {
+              next();
+            } else {
+              next('/auth/login');
+            }
+          },
+         },
+        { 
+          path: '/cars/:car_id', 
+          component: view_car,
+          beforeEnter(to, from, next) {
+            let current_user = (localStorage.current_user);
+            if (current_user) {
+              next();
+            } else {
+              next('/auth/login');
+            }
+          },
+         },
+        { 
+          path: '/cars/new', 
+          component: new_car,
+          beforeEnter(to, from, next) {
+            let current_user = (localStorage.current_user);
+            if (current_user) {
+              next();
+            } else {
+              next('/auth/login');
+            }
+          },
+         },
         { path: '/auth/login', component: login },
-        {
-            path: '/auth/logout',
-            component: logout,
-            beforeEnter(to, from, next) {
-                let current_user = (localStorage.current_user);
-                if (current_user) {
-                    next();
-                } else {
-                    next('/auth/login');
-                }
-            },
+        { 
+          path: '/auth/logout', 
+          component: logout,  
+          beforeEnter(to, from, next) {
+            let current_user = (localStorage.current_user);
+            if (current_user) {
+              next();
+            } else {
+              next('/auth/login');
+            }
+          },
         },
         // This is a catch all route in case none of the above matches
         { path: '/:pathMatch(.*)*', name: 'NotFound', component: NotFound }
