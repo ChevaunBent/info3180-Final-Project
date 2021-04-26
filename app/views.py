@@ -145,6 +145,30 @@ def new_car(current_user):
   return jsonify(errors=form_errors(form))
 
 
+@app.route('/api/cars/<car_id>', methods=["GET"])
+@token_required
+def get_car(current_user, car_id):
+  if request.method == "GET":
+    car = Cars.query.filter_by(id=car_id).first() 
+    if not car: 
+      return jsonify(error="Car not found")
+
+    _car = {
+      'id': car.id,
+      'year': car.year,
+      'make': car.make,
+      'model': car.model,
+      'colour': car.colour,
+      'description': car.description,
+      'transmission': car.transmission,
+      'car_type': car.car_type,
+      'prcie': car.price,
+      'photo': car.photo,
+      'user_id': car.user_id,
+    }
+    return  jsonify(car=_car)
+
+
 def form_errors(form):
   error_messages = []
   for field, errors in form.errors.items():

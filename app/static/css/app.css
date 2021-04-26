@@ -5,3 +5,8 @@ body {
 footer  {
     padding-top: 20px;
 }
+
+
+.ms-auto {
+  margin-left: auto !important;
+}
