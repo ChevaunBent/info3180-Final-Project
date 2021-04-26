@@ -9,8 +9,8 @@ import os, datetime
 from app import app, db, login_manager
 from flask import render_template, request, redirect, url_for, flash, jsonify
 from flask_login import login_user, logout_user, current_user, login_required
-from .forms import *
-from app.models import *
+from .forms import UserRegistrationForm, LoginForm, NewCarForm
+from app.models import Cars, Favourites, Users
 from werkzeug.security import check_password_hash
 from werkzeug.utils import secure_filename
 import jwt
@@ -143,19 +143,6 @@ def new_car(current_user):
       print(exc)
       return jsonify(errors=["Internal error occurred, please try again later"])
   return jsonify(errors=form_errors(form))
-
-
-@app.route('/api/users/<user_id>', methods =['GET'])
-@token_required
-def user(user_id):
-  if request.method == 'GET':
-    user = Users.query.filter_by(id=user_id).first()
-    #response = {"status": "ok", "user_data":{"name":user.name,
-    #"email": user.email, "location": user.location,"biography": user.biography,
-    #"profile_image": os.path.join(app.config['UPLOAD_FOLDER'],user.photo), 
-    #"joined":user.date_joined}}
-    response = {"status" : "ok", "user_data":{"name":user.name}}
-    return jsonify(response)
 
 
 def form_errors(form):
