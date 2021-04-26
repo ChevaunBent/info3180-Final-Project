@@ -504,8 +504,8 @@ const view_car = {
 };
 
 
-const Profile = ("profile",{
-  name: "profile",
+const Users = ("users",{
+  name: "users",
   template: 
   /*html*/
   `
@@ -520,33 +520,40 @@ const Profile = ("profile",{
     </div>
   </div>
   `,
-  created(){
-      let self = this;
+  methods: {
+    profile: function(){
+      self = this;
       
       fetch(`/api/users/${self.$route.params.user_id}`,{
         method: "GET",
         headers: {
-          'Authorization': `Bearer ${JSON.parse(localStorage.current_user).token}`
+          "Authorization": `Bearer ${JSON.parse(localStorage.current_user).token}`,
+          'X-CSRFToken': token,
+          'Content-Type': 'application/json'
         },
-        credentials: 'same-origin'
-      })
-      .then(function(response){
+        credentials: 'same-origin',
+        })
+        .then(function(response){
         return response.json();
-      })
-      .then(function(jsonResponse){
-        self.user =jsonResponse.user_data
-        console.log(jsonResponse.user_data)
-        
-
-        
-      }).catch(function(error){
-        console.log(error)
-      });
-    },
+        })
+        .then(function(jsonResponse){
+          console.log("HI")
+          self.user = jsonResponse
+          console.log(jsonResponse)
+          if(jsonResponse.status==201 ){
+            self.user = jsonResponse.user_data
+            console.log(jsonResponse.user_data)
+          }
+        })
+        .catch(function(error){
+          console.log(error)
+        });
+    }
+  },
   data: function(){
     return {
       user: null,
-      cu_id: (this.$route.params.user_id == JSON.parse(localStorage.current_user).id) ? true : false
+      current_user_id: (this.$route.params.user_id == JSON.parse(localStorage.current_user).id) ? true : false
     }
   }
 });
@@ -564,7 +571,8 @@ const app = Vue.createApp({
         'login': login,
         'explore': Explore,
         'home': Home,
-        'new_car': new_car
+        'new_car': new_car,
+        'users': Users
     }
 });
 
@@ -583,6 +591,9 @@ app.component('app-header', {
           <ul class="navbar-nav mr-auto">
             <li class="nav-item active">
               <router-link to="/" class="nav-link">Home</router-link>
+            </li>
+            <li class="nav-item active" v-if="authenticated_user">
+            <router-link class="nav-link" :to="{name: 'users', params: {user_id: current_user_id}}">My Profile</router-link>
             </li>
             <li class="nav-item" v-if="authenticated_user">
               <router-link to="/explore" class="nav-link">Explore</router-link>
@@ -662,7 +673,19 @@ const router = VueRouter.createRouter({
     routes: [
         { path: '/', component: Home },
         { path: '/register', component: register },
-        { path: "/users/:user_id", name: "users", component: Profile },
+        { 
+          path: '/users/:user_id',
+          name:"users", 
+          component: Users,
+          beforeEnter(to, from, next) {
+            let current_user = (localStorage.current_user);
+            if (current_user) {
+              next();
+            } else {
+              next('/auth/login');
+            }
+          },
+         },
         { path: '/explore', 
           component: Explore, 
           beforeEnter(to, from, next) {
