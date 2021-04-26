@@ -233,7 +233,7 @@ def search(current_user):
       cars = Cars.query.filter_by(make=make, model=model).all()
     elif make:
       cars = Cars.query.filter_by(make=make).all() 
-    elif model: 
+    elif model:   
       cars = Cars.query.filter_by(model=model).all() 
     else:    
       return jsonify(errors=["Car not found"])

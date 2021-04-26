@@ -792,6 +792,7 @@ const router = VueRouter.createRouter({
         {
           path: '/cars/:car_id',
           component: view_car,
+          name: "view_car",
           beforeEnter(to, from, next) {
               let current_user = (localStorage.current_user);
               if (current_user) {
