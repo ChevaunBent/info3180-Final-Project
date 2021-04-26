@@ -662,6 +662,7 @@ const router = VueRouter.createRouter({
     routes: [
         { path: '/', component: Home },
         { path: '/register', component: register },
+        { path: "/users/:user_id", name: "users", component: Profile },
         { path: '/explore', 
           component: Explore, 
           beforeEnter(to, from, next) {
