@@ -312,7 +312,7 @@ const Home = {
 const new_car = {
     name: 'cars-new',
     template: `
-    <h1 class="page-header"><strong>Add New Car</strong></h1>
+    <h1 class="page-header mb-3"><strong>Add New Car</strong></h1>
     <!--Displays Messages-->
     <div class="form_response">
       <div>
