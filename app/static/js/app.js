@@ -228,44 +228,105 @@ const Explore = {
     name: 'Explore',
     template:
     /*html*/
-        `
+    `
+        <h1 class="page-header py-5">Explore</h1>
+        <div class="card">
+          <div class="card-body">
+            <div class="row">
+              <div class="col-md-4">
+                <label class='pr-2'>Make</label>
+                <input type="text" name="makesearch" v-model="makesearch" class="form-control" v-model="searchMake">
+              </div>
+              <div class="col-md-4">
+                <label class='pr-2'>Model</label>
+                <input type="text" name="modelsearch" v-model="modelsearch" class="form-control" v-model="searchModel">
+              </div>
+              <div class="col-md-4">
+                <a class="btn btn-success text-white search-button" @click="exploreSearch">Search</a>
+              </div>
+            </div>
+          </div>
+        </div>
 
-    <h2>Explore</h2>
-    <div>
-      <label class='pr-2'>Make</label>
-      <input type="text" name="makesearch" v-model="makesearch">
-    </div>
-    <div>
-      <label class='pr-2'>Model</label>
-      <input type="text" name="modelsearch" v-model="modelsearch">
-    </div>
-    <div>
-      <button>Search</button>
-    </div>
-`,
+        <div class="card-group py-5">
+            <div v-for="car in cars" class="col-4 mb-4 pl-0">
+                <div class="card">
+                  <div class="card-img-top img-responsive img-responsive-16by9" v-bind:style="{ backgroundImage: 'url( ../static/uploads/' + car.photo + ')' }"></div>
+                  <div class="card-body">
+                    <div class="header row m-0">
+                        <p class="card-title">Card with top image</p>
+                        <div class="bg-success text-white badge ms-auto">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon me-2 text-muted" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="#ffffff" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                              <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                              <path d="M11 3l9 9a1.5 1.5 0 0 1 0 2l-6 6a1.5 1.5 0 0 1 -2 0l-9 -9v-4a4 4 0 0 1 4 -4h4" />
+                              <circle cx="9" cy="9" r="2" />
+                            </svg>
+                            {{ car.price }}
+                        </div>
+                    </div>
+                    <p>{{ car.model }}</p>
+                    <div class="card-text mt-4">
+                      <router-link :to="{ name: 'view_car', params: { car_id: car.id } }" class="btn btn-primary w-100">View car details</router-link>
+                    </div>
+                  </div>
+                </div>
+            </div>
+        </div>
+
+        <div v-if="!cars" class="alert alert-warning" role="alert">
+          No cars found
+        </div>
+    `,
     data: function() {
         return {
-            welcome: 'This will be for Exploring/Viewing all posts by users',
-            Header: "Search Box",
-            Header: "Search Box",
-            smessage: sessionStorage.message,
-            allcars: [{
+            hasError: false,
+            errors: [],
+            cars: [],
+            searchMake: '',
+            searchModel: ''
 
-            }]
         }
     },
+    created() {
+        let self = this;
+
+        fetch('/api/cars', {
+            method: "GET",
+            headers: {
+                'Authorization': `Bearer ${JSON.parse(localStorage.current_user).token}`
+            },
+        })
+        .then(function(response) {
+           return response.json();
+        })
+        .then(function(jsonResponse) {
+
+            if (jsonResponse.hasOwnProperty("errors")) {
+                self.hasError = true;
+                console.log(jsonResponse.errors)
+            } else {
+                console.log(jsonResponse.cars)
+                self.cars = jsonResponse.cars
+                console.log(self.cars)
+            }
+        });
+    }, 
     methods: {
         exploreSearch() {
             let self = this;
-            fetch('/api/search?searchbymake=' + self.searchMake + '&searchbymodel=' + self.searchModel, {
+            fetch('/api/search?make=' + self.searchMake + '&model=' + self.searchModel, {
                     method: 'GET',
-                    headers: { 'Authorization': 'Bearer ' + sessionStorage.getItem('token'), 'X-CSRFToken': token }
+                    headers: 
+                    { 
+                      'Authorization': `Bearer ${JSON.parse(localStorage.current_user).token}`, 
+                      'X-CSRFToken': token 
+                    },
                 })
                 .then(function(response) {
                     return response.json();
                 })
                 .then(function(jsonResponse) {
-                    self.allcars = jsonResponse.searchedcars
+                    self.cars = jsonResponse.cars
                     console.log(jsonResponse);
                 })
                 .catch(function(error) {
@@ -313,7 +374,7 @@ const Home = {
 const new_car = {
     name: 'cars-new',
     template: `
-    <h1 class="page-header mb-3"><strong>Add New Car</strong></h1>
+    <h1 class="page-header mb-3 py-5"><strong>Add New Car</strong></h1>
     <!--Displays Messages-->
     <div class="form_response">
       <div>
@@ -731,6 +792,7 @@ const router = VueRouter.createRouter({
         { 
           path: '/cars/:car_id', 
           component: view_car,
+          name: 'view_car',
           beforeEnter(to, from, next) {
             let current_user = (localStorage.current_user);
             if (current_user) {

@@ -149,6 +149,33 @@ def new_car(current_user):
   return jsonify(errors=form_errors(form))
 
 
+@app.route('/api/cars', methods=["GET"])
+@token_required
+def all_car(current_user):
+  if request.method == "GET":
+    cars = Cars.query.filter().limit(3).all()
+    if not cars: 
+      return jsonify(errors=["Cars not found"])
+    
+    cars_obj = []
+    for car in cars:
+      _car = {
+        'id': car.id,
+        'year': car.year,
+        'make': car.make,
+        'model': car.model,
+        'colour': car.colour,
+        'description': car.description,
+        'transmission': car.transmission,
+        'car_type': car.car_type,
+        'price': car.price,
+        'photo': car.photo,
+        'user_id': car.user_id,
+      }
+      cars_obj.append(_car)
+    return  jsonify(cars=cars_obj)
+
+
 @app.route('/api/cars/<car_id>', methods=["GET"])
 @token_required
 def get_car(current_user, car_id):
@@ -166,7 +193,7 @@ def get_car(current_user, car_id):
       'description': car.description,
       'transmission': car.transmission,
       'car_type': car.car_type,
-      'prcie': car.price,
+      'price': car.price,
       'photo': car.photo,
       'user_id': car.user_id,
     }
@@ -189,6 +216,46 @@ def favourite_car(current_user, car_id):
         print(exc)
         return jsonify(errors=["Internal error occurred, please try again later"])
     return jsonify(errors=["Already favourited"])
+
+
+@app.route('/api/search', methods=["GET"])
+@token_required
+def search(current_user):
+  if request.method == "GET":
+
+    params = request.args
+    make = params['make'].strip()
+    model = params['model'].strip()
+
+    cars = []
+
+    if make and model:
+      cars = Cars.query.filter_by(make=make, model=model).all()
+    elif make:
+      cars = Cars.query.filter_by(make=make).all() 
+    elif model: 
+      cars = Cars.query.filter_by(model=model).all() 
+    else:    
+      return jsonify(errors=["Car not found"])
+
+    cars_obj = []
+    _car = {}
+    for car in cars:
+      _car = {
+        'id': car.id,
+        'year': car.year,
+        'make': car.make,
+        'model': car.model,
+        'colour': car.colour,
+        'description': car.description,
+        'transmission': car.transmission,
+        'car_type': car.car_type,
+        'price': car.price,
+        'photo': car.photo,
+        'user_id': car.user_id,
+      }
+      cars_obj.append(_car)
+    return  jsonify(cars=_car)
 
 
 def form_errors(form):
