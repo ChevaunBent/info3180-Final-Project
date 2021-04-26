@@ -148,7 +148,6 @@ def new_car(current_user):
       return jsonify(errors=["Internal error occurred, please try again later"])
   return jsonify(errors=form_errors(form))
 
-
 @app.route('/api/cars', methods=["GET"])
 @token_required
 def all_car(current_user):
@@ -257,7 +256,27 @@ def search(current_user):
       cars_obj.append(_car)
     return  jsonify(cars=cars_obj)
 
+@app.route('/api/users/<user_id>', methods=['GET'])
+@token_required
+def users(current_user, user_id):   
+  print("ssssssssssssssssssssssssss", user)
+  if request.method == "GET":
+    user = Users.query.filter_by(id=user_id).first() 
+    if not users: 
+      return jsonify(errors=["User not found"])
 
+    _user = {
+      'id': users.id,
+      'username': users.username,
+      'name': users.name,
+      'email': users.email,
+      'location': users.location,
+      'biography': users.biography,
+      'photo': users.photo,
+      'date_joined': users.date_joined,
+    }
+    return  jsonify(user=_user)
+    
 def form_errors(form):
   error_messages = []
   for field, errors in form.errors.items():

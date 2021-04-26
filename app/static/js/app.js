@@ -618,11 +618,11 @@ const view_car = {
 };
 
 
-const Profile = ("profile", {
-    name: "profile",
-    template:
-    /*html*/
-        `
+const Users = {
+  name: "users",
+  template: 
+  /*html*/
+  `
   <div>
     <div class="card row" style="width:100%">
         <div class="card-body row profile-haeder" style="padding: 0;" >
@@ -635,35 +635,40 @@ const Profile = ("profile", {
   </div>
   `,
     created() {
-        let self = this;
-
-        fetch(`/api/users/${self.$route.params.user_id}`, {
-                method: "GET",
-                headers: {
-                    'Authorization': `Bearer ${JSON.parse(localStorage.current_user).token}`
-                },
-                credentials: 'same-origin'
-            })
-            .then(function(response) {
-                return response.json();
-            })
-            .then(function(jsonResponse) {
-                self.user = jsonResponse.user_data
-                console.log(jsonResponse.user_data)
-
-
-
-            }).catch(function(error) {
-                console.log(error)
-            });
+      self = this;
+      
+      fetch(`/api/users/${self.$route.params.user_id}`, {
+        method: "GET",
+        headers: {
+          "Authorization": `Bearer ${JSON.parse(localStorage.current_user).token}`
+        },
+        credentials: 'same-origin',
+        })
+        .then(function(response){
+            return response.json();
+        })
+        .then(function(jsonResponse){
+            if (jsonResponse.hasOwnProperty("errors")) {
+                self.errors = jsonResponse.errors
+                self.has_error = true
+                console.log(jsonResponse.errors)
+            } else {
+                console.log(jsonResponse);
+                self.user = jsonResponse.user
+                self.has_error = false
+            }
+        })
+        .catch(function(error){
+          console.log(error)
+        });
     },
-    data: function() {
+    data: function(){
         return {
-            user: null,
-            cu_id: (this.$route.params.user_id == JSON.parse(localStorage.current_user).id) ? true : false
+          user: "",
+          has_error: false,
         }
     }
-});
+};
 
 
 
@@ -678,7 +683,8 @@ const app = Vue.createApp({
         'login': login,
         'explore': Explore,
         'home': Home,
-        'new_car': new_car
+        'new_car': new_car,
+        'users': Users
     }
 });
 
@@ -698,6 +704,12 @@ app.component('app-header', {
         </button>
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
           <ul class="navbar-nav mr-auto">
+            <li class="nav-item active">
+              <router-link to="/" class="nav-link">Home</router-link>
+            </li>
+            <li class="nav-item active" v-if="authenticated_user">
+            <router-link class="nav-link" :to="{name: 'users', params: {user_id: current_user_id}}">My Profile</router-link>
+            </li>
             <li class="nav-item" v-if="authenticated_user">
               <router-link to="/explore" class="nav-link">Explore</router-link>
             </li>
