@@ -617,14 +617,14 @@ const view_car = {
     }
 };
 
-
-const Profile = ("profile", {
+// profile 
+const Profile = ("profile", { 
     name: "profile",
     template:
     /*html*/
         `
   <div>
-    <div class="card row" style="width:100%">
+    <div class="card row" style="width:100%"> 
         <div class="card-body row profile-haeder" style="padding: 0;" >
             <strong><label>{{ user}}</label></strong>
           <div id="favourites" class="col-sm-3" style="padding-left:  0; padding-right:  0;">
@@ -640,7 +640,7 @@ const Profile = ("profile", {
         fetch(`/api/users/${self.$route.params.user_id}`, {
                 method: "GET",
                 headers: {
-                    'Authorization': `Bearer ${JSON.parse(localStorage.current_user).token}`
+                    'Authorization': `Bearer ${JSON.parse(localStorage.current_user).token}` // authorization
                 },
                 credentials: 'same-origin'
             })
@@ -661,7 +661,7 @@ const Profile = ("profile", {
         return {
             user: null,
             cu_id: (this.$route.params.user_id == JSON.parse(localStorage.current_user).id) ? true : false
-        }
+        } //checking user ID
     }
 });
 

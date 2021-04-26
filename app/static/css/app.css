@@ -17,7 +17,7 @@ footer  {
 
 .card {
   box-shadow: rgb(35 46 60 / 4%) 0 2px 4px 0;
-  border: 1px solid rgba(101,109,119,.16);
+  border: 1px solid rgba(96, 103, 112, 0.16);
 }
 
 .img-responsive {
