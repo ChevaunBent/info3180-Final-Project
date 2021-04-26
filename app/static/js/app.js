@@ -504,7 +504,7 @@ const view_car = {
 };
 
 
-const Users = ("users",{
+const Users = {
   name: "users",
   template: 
   /*html*/
@@ -520,11 +520,10 @@ const Users = ("users",{
     </div>
   </div>
   `,
-  methods: {
-    profile: function(){
+    created() {
       self = this;
       
-      fetch(`/api/users/${self.$route.params.user_id}`,{
+      fetch(`/api/users/${self.$route.params.user_id}`, {
         method: "GET",
         headers: {
           "Authorization": `Bearer ${JSON.parse(localStorage.current_user).token}`
@@ -532,29 +531,30 @@ const Users = ("users",{
         credentials: 'same-origin',
         })
         .then(function(response){
-        return response.json();
+            return response.json();
         })
         .then(function(jsonResponse){
-          console.log("HI")
-          self.user = jsonResponse
-          console.log(jsonResponse)
-          if(jsonResponse.status==201 ){
-            self.user = jsonResponse.user_data
-            console.log(jsonResponse.user_data)
-          }
+            if (jsonResponse.hasOwnProperty("errors")) {
+                self.errors = jsonResponse.errors
+                self.has_error = true
+                console.log(jsonResponse.errors)
+            } else {
+                console.log(jsonResponse);
+                self.user = jsonResponse.user
+                self.has_error = false
+            }
         })
         .catch(function(error){
           console.log(error)
         });
+    },
+    data: function(){
+        return {
+          user: "",
+          has_error: false,
+        }
     }
-  },
-  data: function(){
-    return {
-      user: null,
-      current_user_id: (this.$route.params.user_id == JSON.parse(localStorage.current_user).id) ? true : false
-    }
-  }
-});
+};
 
 
 

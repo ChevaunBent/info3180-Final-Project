@@ -144,20 +144,28 @@ def new_car(current_user):
       return jsonify(errors=["Internal error occurred, please try again later"])
   return jsonify(errors=form_errors(form))
 
-#Vaun Edit
-@app.route('/api/users/<user_id>/', methods =['GET'])
-@token_required
-def users(user_id):   
-  if request.method == "GET":
-    user = users.query.filter_by(id=user_id).first()
-    #response = {"status": "ok", "user_data":{"name":user.name, "email":user.email, "location": user.location,
-    #"biography": user.biography,"photo": os.path.join(app.config['UPLOAD_FOLDER'],user.profile_photo), "joined_on": "Member since "+ (user.joined_on, "%B %Y")}}        
-    response = (user.name)
-    print("Response was: ",response)
-    return jsonify(response)
-    
-#End Block
 
+@app.route('/api/users/<user_id>', methods=['GET'])
+@token_required
+def users(current_user, user_id):   
+  print("ssssssssssssssssssssssssss", user)
+  if request.method == "GET":
+    user = Users.query.filter_by(id=user_id).first() 
+    if not users: 
+      return jsonify(errors=["User not found"])
+
+    _user = {
+      'id': users.id,
+      'username': users.username,
+      'name': users.name,
+      'email': users.email,
+      'location': users.location,
+      'biography': users.biography,
+      'photo': users.photo,
+      'date_joined': users.date_joined,
+    }
+    return  jsonify(user=_user)
+    
 
 def form_errors(form):
   error_messages = []
