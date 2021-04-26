@@ -527,9 +527,7 @@ const Users = ("users",{
       fetch(`/api/users/${self.$route.params.user_id}`,{
         method: "GET",
         headers: {
-          "Authorization": `Bearer ${JSON.parse(localStorage.current_user).token}`,
-          'X-CSRFToken': token,
-          'Content-Type': 'application/json'
+          "Authorization": `Bearer ${JSON.parse(localStorage.current_user).token}`
         },
         credentials: 'same-origin',
         })
