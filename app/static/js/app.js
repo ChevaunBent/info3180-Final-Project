@@ -698,17 +698,11 @@ app.component('app-header', {
         </button>
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
           <ul class="navbar-nav mr-auto">
-            <li class="nav-item active">
-              <router-link to="/" class="nav-link">Home</router-link>
-            </li>
             <li class="nav-item" v-if="authenticated_user">
               <router-link to="/explore" class="nav-link">Explore</router-link>
             </li>
             <li class="nav-item" v-if="authenticated_user">
               <router-link to="/cars/new" class="nav-link">Add Car</router-link>
-            </li>
-            <li class="nav-item" v-if="!authenticated_user">
-              <router-link to="/register" class="nav-link">Register</router-link>
             </li>
           </ul>
             <div v-if ="authenticated_user">
@@ -723,6 +717,9 @@ app.component('app-header', {
             </div>
             <div v-else>
               <ul class="navbar-nav">
+                <li class="nav-item" v-if="!authenticated_user">
+                  <router-link to="/register" class="nav-link">Register</router-link>
+                </li>
                 <li class="nav-item">
                     <router-link to="/auth/login" class="nav-link">Login</router-link>
                 </li>
@@ -737,7 +734,7 @@ app.component('app-header', {
             authenticated_user: localStorage.hasOwnProperty("current_user"),
             current_user_id: localStorage.hasOwnProperty("current_user") ? JSON.parse(localStorage.current_user).id : null,
             current_user_name: localStorage.hasOwnProperty("current_user") ? JSON.parse(localStorage.current_user).user_name : null,
-            image: "static/images/directions_car_white_24dp.svg"
+            image: "/static/images/directions_car_white_24dp.svg"
         };
     }
 });
@@ -778,8 +775,30 @@ const NotFound = {
 const router = VueRouter.createRouter({
     history: VueRouter.createWebHistory(),
     routes: [
-        { path: '/', component: Home },
-        { path: '/register', component: register },
+        { 
+            path: '/', 
+            component: Home,
+            beforeEnter(to, from, next) {
+              let current_user = (localStorage.current_user);
+              if (!current_user) {
+                  next();
+              } else {
+                  next('/explore');
+              }
+          },
+        },
+        { 
+            path: '/register', 
+            component: register,
+            beforeEnter(to, from, next) {
+              let current_user = (localStorage.current_user);
+              if (!current_user) {
+                  next();
+              } else {
+                  next('/explore');
+              }
+            },
+         },
         { path: "/users/:user_id", name: "users", component: Profile },
         {
           path: '/explore',
@@ -818,7 +837,18 @@ const router = VueRouter.createRouter({
               }
           },
         },
-        { path: '/auth/login', component: login },
+        { 
+            path: '/auth/login', 
+            component: login,
+            beforeEnter(to, from, next) {
+              let current_user = (localStorage.current_user);
+              if (!current_user) {
+                  next();
+              } else {
+                  next('/explore');
+              }
+            },
+        },
         {
             path: '/auth/logout',
             component: logout,  
