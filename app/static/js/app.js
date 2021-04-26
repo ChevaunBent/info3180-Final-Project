@@ -1,7 +1,6 @@
 const register = {
     name: 'register',
-    template:
-        `
+    template: `
     <div>
         <h1 class="page-header"> 
             Add New User
@@ -56,47 +55,47 @@ const register = {
     </div>
     `,
     data() {
-      return {
-        messages: "",
-        errors: [],
-        has_error: false,
-        has_message: false
-      }
+        return {
+            messages: "",
+            errors: [],
+            has_error: false,
+            has_message: false
+        }
     },
     methods: {
-      register() {
-        let self = this;
-        let registration_form = document.getElementById('registrationform');
-        let form_data = new FormData(registration_form);
+        register() {
+            let self = this;
+            let registration_form = document.getElementById('registrationform');
+            let form_data = new FormData(registration_form);
 
-        fetch('/api/register', {
-          method: 'POST',
-          body: form_data,
-          headers: {
-            'X-CSRFToken': token
-          },
-          credentials: 'same-origin'
-        })
-        .then(function(response) {
-          return response.json()
-        })
-        .then(function(jsonResponse) {
-          if (jsonResponse.hasOwnProperty("errors")) {
-            self.errors = jsonResponse.errors
-            self.has_error = true
-            console.log(jsonResponse.errors)
-          } else { 
-            self.messages = jsonResponse.messages
-            self.has_message = true
-            self.has_error = false
-            console.log(jsonResponse.messages)
-            setTimeout( () => router.push('/auth/login'), 3000)
-          }  
-        })
-        .catch(function(error) {
-          console.log(error)
-        });
-      }
+            fetch('/api/register', {
+                    method: 'POST',
+                    body: form_data,
+                    headers: {
+                        'X-CSRFToken': token
+                    },
+                    credentials: 'same-origin'
+                })
+                .then(function(response) {
+                    return response.json()
+                })
+                .then(function(jsonResponse) {
+                    if (jsonResponse.hasOwnProperty("errors")) {
+                        self.errors = jsonResponse.errors
+                        self.has_error = true
+                        console.log(jsonResponse.errors)
+                    } else {
+                        self.messages = jsonResponse.messages
+                        self.has_message = true
+                        self.has_error = false
+                        console.log(jsonResponse.messages)
+                        setTimeout(() => router.push('/auth/login'), 3000)
+                    }
+                })
+                .catch(function(error) {
+                    console.log(error)
+                });
+        }
     }
 };
 
@@ -436,7 +435,7 @@ const view_car = {
     name: 'view_car',
     template:
     /*html*/
-    ` 
+        ` 
       <div class="col-12 py-5">
         <!--Displays Messages-->
         <div class="form_response">
@@ -490,50 +489,21 @@ const view_car = {
       </div>
     `,
     data() {
-      return {
-        car: "",
-        errors: [],
-        has_error: false,
-        has_message: false,
-        message: ""
-      }
-    }, 
-    created() {
-      let self = this;
-      fetch(`/api/cars/${self.$route.params.car_id}`, {
-        method: "GET",
-        headers: {
-          'Authorization': `Bearer ${JSON.parse(localStorage.current_user).token}`,
+        return {
+            car: "",
+            errors: [],
+            has_error: false,
+            has_message: false,
+            message: ""
         }
-      })
-      .then(function(response) {
-        return response.json();
-      })
-      .then(function(jsonResponse) {
-        if (jsonResponse.hasOwnProperty("errors")) {
-            self.errors = jsonResponse.errors
-            self.has_error = true
-            console.log(jsonResponse.errors)
-        } else {
-            console.log(jsonResponse);
-            self.car = jsonResponse.car            
-            self.has_error = false
-        }
-      })
-      .catch(function(error) {
-          console.log(error)
-      });
     },
-    methods: {
-        favourite(car) {
-            let self = this;
-            fetch(`/api/cars/${car.id}/favourite`, {
-                method: "POST",
+    created() {
+        let self = this;
+        fetch(`/api/cars/${self.$route.params.car_id}`, {
+                method: "GET",
                 headers: {
                     'Authorization': `Bearer ${JSON.parse(localStorage.current_user).token}`,
-                    'X-CSRFToken': token
-                },
-                credentials: 'same-origin',
+                }
             })
             .then(function(response) {
                 return response.json();
@@ -545,24 +515,53 @@ const view_car = {
                     console.log(jsonResponse.errors)
                 } else {
                     console.log(jsonResponse);
-                    self.message = jsonResponse.message            
+                    self.car = jsonResponse.car
                     self.has_error = false
-                    self.has_message = true
                 }
             })
             .catch(function(error) {
-              console.log(error)
+                console.log(error)
             });
+    },
+    methods: {
+        favourite(car) {
+            let self = this;
+            fetch(`/api/cars/${car.id}/favourite`, {
+                    method: "POST",
+                    headers: {
+                        'Authorization': `Bearer ${JSON.parse(localStorage.current_user).token}`,
+                        'X-CSRFToken': token
+                    },
+                    credentials: 'same-origin',
+                })
+                .then(function(response) {
+                    return response.json();
+                })
+                .then(function(jsonResponse) {
+                    if (jsonResponse.hasOwnProperty("errors")) {
+                        self.errors = jsonResponse.errors
+                        self.has_error = true
+                        console.log(jsonResponse.errors)
+                    } else {
+                        console.log(jsonResponse);
+                        self.message = jsonResponse.message
+                        self.has_error = false
+                        self.has_message = true
+                    }
+                })
+                .catch(function(error) {
+                    console.log(error)
+                });
         }
     }
 };
 
 
-const Profile = ("profile",{
-  name: "profile",
-  template: 
-  /*html*/
-  `
+const Profile = ("profile", {
+    name: "profile",
+    template:
+    /*html*/
+        `
   <div>
     <div class="card row" style="width:100%">
         <div class="card-body row profile-haeder" style="padding: 0;" >
@@ -574,35 +573,35 @@ const Profile = ("profile",{
     </div>
   </div>
   `,
-  created(){
-      let self = this;
-      
-      fetch(`/api/users/${self.$route.params.user_id}`,{
-        method: "GET",
-        headers: {
-          'Authorization': `Bearer ${JSON.parse(localStorage.current_user).token}`
-        },
-        credentials: 'same-origin'
-      })
-      .then(function(response){
-        return response.json();
-      })
-      .then(function(jsonResponse){
-        self.user =jsonResponse.user_data
-        console.log(jsonResponse.user_data)
-        
+    created() {
+        let self = this;
 
-        
-      }).catch(function(error){
-        console.log(error)
-      });
+        fetch(`/api/users/${self.$route.params.user_id}`, {
+                method: "GET",
+                headers: {
+                    'Authorization': `Bearer ${JSON.parse(localStorage.current_user).token}`
+                },
+                credentials: 'same-origin'
+            })
+            .then(function(response) {
+                return response.json();
+            })
+            .then(function(jsonResponse) {
+                self.user = jsonResponse.user_data
+                console.log(jsonResponse.user_data)
+
+
+
+            }).catch(function(error) {
+                console.log(error)
+            });
     },
-  data: function(){
-    return {
-      user: null,
-      cu_id: (this.$route.params.user_id == JSON.parse(localStorage.current_user).id) ? true : false
+    data: function() {
+        return {
+            user: null,
+            cu_id: (this.$route.params.user_id == JSON.parse(localStorage.current_user).id) ? true : false
+        }
     }
-  }
 });
 
 
@@ -628,8 +627,8 @@ app.component('app-header', {
     /*html*/
         `
     <header>
-      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
-        <a class="navbar-brand" href="#">United Auto Sales</a>
+      <img :src="image" alt="Icon of United Auto Sales">
+      <a class="navbar-brand pl-3" href="/">United Auto Sales</a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
           <span class="navbar-toggler-icon"></span>
         </button>
@@ -717,53 +716,54 @@ const router = VueRouter.createRouter({
         { path: '/', component: Home },
         { path: '/register', component: register },
         { path: "/users/:user_id", name: "users", component: Profile },
-        { path: '/explore', 
-          component: Explore, 
-          beforeEnter(to, from, next) {
-            let current_user = (localStorage.current_user);
-            if (current_user) {
-              next();
-            } else {
-              next('/auth/login');
-            }
-          },
-         },
-        { 
-          path: '/cars/:car_id', 
-          component: view_car,
-          beforeEnter(to, from, next) {
-            let current_user = (localStorage.current_user);
-            if (current_user) {
-              next();
-            } else {
-              next('/auth/login');
-            }
-          },
-         },
-        { 
-          path: '/cars/new', 
-          component: new_car,
-          beforeEnter(to, from, next) {
-            let current_user = (localStorage.current_user);
-            if (current_user) {
-              next();
-            } else {
-              next('/auth/login');
-            }
-          },
-         },
+        {
+            path: '/explore',
+            component: Explore,
+            beforeEnter(to, from, next) {
+                let current_user = (localStorage.current_user);
+                if (current_user) {
+                    next();
+                } else {
+                    next('/auth/login');
+                }
+            },
+        },
+        {
+            path: '/cars/:car_id',
+            component: view_car,
+            beforeEnter(to, from, next) {
+                let current_user = (localStorage.current_user);
+                if (current_user) {
+                    next();
+                } else {
+                    next('/auth/login');
+                }
+            },
+        },
+        {
+            path: '/cars/new',
+            component: new_car,
+            beforeEnter(to, from, next) {
+                let current_user = (localStorage.current_user);
+                if (current_user) {
+                    next();
+                } else {
+                    next('/auth/login');
+                }
+            },
+        },
         { path: '/auth/login', component: login },
-        { 
-          path: '/auth/logout', 
-          component: logout,  
-          beforeEnter(to, from, next) {
-            let current_user = (localStorage.current_user);
-            if (current_user) {
-              next();
-            } else {
-              next('/auth/login');
-            }
-          },
+        {
+            path: '/auth/logout',
+            component: logout,
+            beforeEnter(to, from, next) {
+                let current_user = (localStorage.current_user);
+                if (current_user) {
+                    next();
+                } else {
+                    next('/auth/login');
+                }
+            },
         },
         // This is a catch all route in case none of the above matches
         { path: '/:pathMatch(.*)*', name: 'NotFound', component: NotFound }
