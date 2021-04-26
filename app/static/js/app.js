@@ -482,7 +482,7 @@ const new_car = {
                         self.has_message = true
                         self.has_error = false
                         console.log(jsonResponse.message)
-                        setTimeout(() => router.push('/'), 3000)
+                        setTimeout(() => router.push('/explore'), 2000)
                     }
                 })
                 .catch(function(error) {
@@ -688,8 +688,11 @@ app.component('app-header', {
     /*html*/
         `
     <header>
-      <img :src="image" alt="Icon of United Auto Sales">
-      <a class="navbar-brand pl-3" href="/">United Auto Sales</a>
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <a class="navbar-brand pl-3 d-flex justify-content-center" href="/">      
+            <img :src="image" alt="Icon of United Auto Sales" class="mr-2">
+            United Auto Sales
+        </a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
           <span class="navbar-toggler-icon"></span>
         </button>
@@ -733,7 +736,8 @@ app.component('app-header', {
         return {
             authenticated_user: localStorage.hasOwnProperty("current_user"),
             current_user_id: localStorage.hasOwnProperty("current_user") ? JSON.parse(localStorage.current_user).id : null,
-            current_user_name: localStorage.hasOwnProperty("current_user") ? JSON.parse(localStorage.current_user).user_name : null
+            current_user_name: localStorage.hasOwnProperty("current_user") ? JSON.parse(localStorage.current_user).user_name : null,
+            image: "static/images/directions_car_white_24dp.svg"
         };
     }
 });

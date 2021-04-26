@@ -153,7 +153,7 @@ def new_car(current_user):
 @token_required
 def all_car(current_user):
   if request.method == "GET":
-    cars = Cars.query.filter().limit(3).all()
+    cars = Cars.query.order_by(Cars.id.desc()).limit(3)
     if not cars: 
       return jsonify(errors=["Cars not found"])
     
@@ -230,11 +230,11 @@ def search(current_user):
     cars = []
 
     if make and model:
-      cars = Cars.query.filter_by(make=make, model=model).all()
+      cars = Cars.query.filter_by(make=make, model=model)
     elif make:
-      cars = Cars.query.filter_by(make=make).all() 
+      cars = Cars.query.filter_by(make=make) 
     elif model:   
-      cars = Cars.query.filter_by(model=model).all() 
+      cars = Cars.query.filter_by(model=model) 
     else:    
       return jsonify(errors=["Car not found"])
 
@@ -255,7 +255,7 @@ def search(current_user):
         'user_id': car.user_id,
       }
       cars_obj.append(_car)
-    return  jsonify(cars=_car)
+    return  jsonify(cars=cars_obj)
 
 
 def form_errors(form):
