@@ -811,7 +811,18 @@ const router = VueRouter.createRouter({
               }
             },
          },
-        { path: "/users/:user_id", name: "users", component: Profile },
+        {   path: "/users/:user_id", 
+            name: "users", 
+            component: Users,
+            beforeEnter(to, from, next) {
+              let current_user = (localStorage.current_user);
+              if (current_user) {
+                  next();
+              } else {
+                  next('/auth/login');
+              }
+          },
+        },
         {
           path: '/explore',
           component: Explore,
