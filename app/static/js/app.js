@@ -626,7 +626,7 @@ const Profile = ("profile", {
   <div>
     <div class="card row" style="width:100%"> 
         <div class="card-body row profile-haeder" style="padding: 0;" >
-            <strong><label>{{ user}}</label></strong>
+            <strong><label>{{ user }}</label></strong>
           <div id="favourites" class="col-sm-3" style="padding-left:  0; padding-right:  0;">
             <p>To be completed</p>
           </div>
