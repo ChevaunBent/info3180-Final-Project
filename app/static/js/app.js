@@ -2,7 +2,7 @@ const register = {
     name: 'register',
     template: `
     <div>
-        <h1 class="page-header"> 
+        <h1 class="page-header py-4"> 
             Add New User
         </h1>
         <!--Displays Messages-->
@@ -15,43 +15,47 @@ const register = {
             </ul>
           </div>
         </div>
-        <form @submit.prevent='register' id ="registrationform" method = 'POST' enctype="multipart/form-data">
-            <div>
-                <div class="col-12 form-group">
-                    <label for = 'name'> Name </label>
-                    <input type="text" name="name" id="name" class="form-control mb-2 mr-sm-2" placeholder="Enter Name here">
-                </div>
-                <div class="col-12 form-group">
-                    <label for = 'email'> Email </label>
-                    <input type="text" name="email" id="email" class="form-control mb-2 mr-sm-2" placeholder="Enter Email here">
-                </div>
-                <div class="col-12 form-group">
-                    <label for = 'location'> Location </label>
-                    <input type="text" name="location" id="location" class="form-control mb-2 mr-sm-2" placeholder="Enter Location here">
-                </div>
-                <div class="col-12 form-group">
-                    <label for = 'biography'> Biography </label>
-                    <textarea type="text" name="biography" id="biography" class="form-control mb-2 mr-sm-2" style='min-height: 10rem; height:10rem;' placeholder="Enter Biography here"></textarea>
-                </div>
-                <div class="col-12 form-group">
-                    <label for = 'username'> Username </label>
-                    <input type="text" name="username" id="username" class="form-control mb-2 mr-sm-2" placeholder="Enter Username here">
-                </div>
-                <div class="col-12 form-group">
-                    <label for = 'password'> Password </label>
-                    <input type="password" name="password" id="password" class="form-control mb-2 mr-sm-2">
-                </div>
-                <div class="form-group">
-                    <div class="col-sm-6">
-                        <label for = 'photo'> Select a photo: </label> <br>
-                        <input type='file' name = 'photo'> <br>
+        <div class="card">
+            <div class="card-body">
+                <form @submit.prevent='register' id ="registrationform" method = 'POST' enctype="multipart/form-data">
+                    <div>
+                        <div class="col-12 form-group">
+                            <label for = 'name'> Name </label>
+                            <input type="text" name="name" id="name" class="form-control mb-2 mr-sm-2" placeholder="Enter Name here">
+                        </div>
+                        <div class="col-12 form-group">
+                            <label for = 'email'> Email </label>
+                            <input type="text" name="email" id="email" class="form-control mb-2 mr-sm-2" placeholder="Enter Email here">
+                        </div>
+                        <div class="col-12 form-group">
+                            <label for = 'location'> Location </label>
+                            <input type="text" name="location" id="location" class="form-control mb-2 mr-sm-2" placeholder="Enter Location here">
+                        </div>
+                        <div class="col-12 form-group">
+                            <label for = 'biography'> Biography </label>
+                            <textarea type="text" name="biography" id="biography" class="form-control mb-2 mr-sm-2" style='min-height: 10rem; height:10rem;' placeholder="Enter Biography here"></textarea>
+                        </div>
+                        <div class="col-12 form-group">
+                            <label for = 'username'> Username </label>
+                            <input type="text" name="username" id="username" class="form-control mb-2 mr-sm-2" placeholder="Enter Username here">
+                        </div>
+                        <div class="col-12 form-group">
+                            <label for = 'password'> Password </label>
+                            <input type="password" name="password" id="password" class="form-control mb-2 mr-sm-2">
+                        </div>
+                        <div class="form-group">
+                            <div class="col-sm-6">
+                                <label for = 'photo'> Select a photo: </label> <br>
+                                <input type='file' name = 'photo'> <br>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <button class='btn btn-primary' type='submit'> Submit </button>
+                        </div>
                     </div>
-                </div>
-                <div class="col-12">
-                    <button class='btn btn-primary' type='submit'> Submit </button>
-                </div>
+                </form>
             </div>
-        </form>
+        </div>
     </div>
     `,
     data() {
@@ -105,7 +109,7 @@ const login = {
     /*html*/
         `
     <div class="login-form center-block">
-        <h2>Please Log in</h2>
+        <h1 class="py-4 page-header">Please Log in</h1>
           <!--Displays Messages-->
           <div v-if='hasMessage || smessage!= "undefined"'>
               <div v-if="!hasError && hasMessage">
@@ -127,17 +131,21 @@ const login = {
                 </ul>
             </div>
         </div>
-        <form @submit.prevent='login' id = 'login' method = 'POST' enctype="multipart/form-data">
-        <div class="col-12 form-group">
-            <label for = 'username'> Username </label>
-            <input type="text" name="username" id="username" class="form-control mb-2 mr-sm-2" placeholder="Enter Username here">
+        <div class="card">
+            <div class="card-body">      
+                <form @submit.prevent='login' id = 'login' method = 'POST' enctype="multipart/form-data">
+                <div class="form-group">
+                    <label for = 'username'> Username </label>
+                    <input type="text" name="username" id="username" class="form-control mb-2 mr-sm-2" placeholder="Enter Username here">
+                </div>
+                <div class="form-group">
+                    <label for = 'password'> Password </label>
+                    <input type="password" name="password" id="password" class="form-control mb-2 mr-sm-2">
+                </div>
+                <button type="submit" name="submit" class="btn btn-success w-100">Log in</button>
+                </form>
+            </div>
         </div>
-        <div class="col-12 form-group">
-            <label for = 'password'> Password </label>
-            <input type="password" name="password" id="password" class="form-control mb-2 mr-sm-2">
-        </div>
-        <button type="submit" name="submit" class="btn btn-primary btn-block">Log in</button>
-        </form>
     </div>    
   `,
     data() {
@@ -344,17 +352,17 @@ const Home = {
       <div class="home">
         <div class="container">
           <div class="row justify-content-center" style="box-shadow: 2px 2px 10px grey;">
-            <div class="col-md-6 card-body justify-content-center">
-              <h1>{{Header}}</h1>
-              <p>{{welcome}}</p>
-              <div>
-                <router-link class="btn btn-success col-md-3" to="/register">Register</router-link>
-                <router-link class="btn btn-primary col-md-3" style="margin: 10px" to="/login">Login</router-link>
+            <div class="col-md-6 card-body justify-content-center d-flex align-items-center">
+              <div class="p-2">
+                  <h1 class="font-weight-bold">{{Header}}</h1>
+                  <p>{{welcome}}</p>
+                  <router-link class="btn btn-success col-md-3" to="/register">Register</router-link>
+                  <router-link class="btn btn-primary col-md-3" style="margin: 10px" to="/login">Login</router-link>
               </div>
             </div>
-            <div class="col-md-6 landing-container-child float-clear">
+            <div class="col-md-6 landing-container-child float-clear p-0">
               <div class= "card">
-                <img class="card-img-top" :src="image" alt="Image of a car" style="margin: 0 auto;">
+                <img class="card-img-top img-responsive p-0" :src="image" alt="Image of a car" style="margin: 0 auto;">
               </div>
             </div>
           </div>
@@ -373,7 +381,7 @@ const Home = {
 const new_car = {
     name: 'cars-new',
     template: `
-    <h1 class="page-header mb-3 py-5 font-weight-bold">Add New Car</h1>
+    <h1 class="page-header py-4">Add New Car</h1>
     <!--Displays Messages-->
     <div class="form_response">
       <div>
