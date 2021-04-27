@@ -228,16 +228,19 @@ def search(current_user):
 
     cars = []
 
-    if not make and not model:
-      cars = Cars.query.order_by(Cars.id.desc()).limit(3)
-
     if make and model:
       cars = Cars.query.filter_by(make=make, model=model)
+      return jsonify(_message="sent")
     elif make:
       cars = Cars.query.filter_by(make=make) 
+      return jsonify(_message="sent")
     elif model:   
       cars = Cars.query.filter_by(model=model) 
-    else:    
+      return jsonify(_message="sent")
+    elif not make and not model:    
+      cars = Cars.query.order_by(Cars.id.desc()).limit(3)
+      return jsonify(_message="sent")
+    else
       return jsonify(errors=["Car not found"])
 
     cars_obj = []
