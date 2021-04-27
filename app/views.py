@@ -307,7 +307,7 @@ def user_favourites(current_user, user_id):
         }
         cars_obj.append(_car)
     else:
-      return jsonify(errors=["No favourites found"])
+      return jsonify(fav_errors=["No favourites found"])
     return  jsonify(favourite_cars=cars_obj)
     
 

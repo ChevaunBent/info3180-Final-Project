@@ -89,7 +89,7 @@ const register = {
                         self.has_message = true
                         self.has_error = false
                         console.log(jsonResponse.messages)
-                        setTimeout(() => router.push('/auth/login'), 3000)
+                        setTimeout(() => router.push('/login'), 3000)
                     }
                 })
                 .catch(function(error) {
@@ -349,7 +349,7 @@ const Home = {
               <p>{{welcome}}</p>
               <div>
                 <router-link class="btn btn-success col-md-3" to="/register">Register</router-link>
-                <router-link class="btn btn-primary col-md-3" style="margin: 10px" to="/auth/login">Login</router-link>
+                <router-link class="btn btn-primary col-md-3" style="margin: 10px" to="/login">Login</router-link>
               </div>
             </div>
             <div class="col-md-6 landing-container-child float-clear">
@@ -660,6 +660,16 @@ const Users = {
 
 
     <h4 class="mb-3 mt-5 page-header">Cars Favourited</h4>
+
+    <!--Displays Messages-->
+    <div class="form_response">
+      <div>
+        <ul v-if="has_fav_errors" class="alert alert-danger pl-4">
+          <div v-for="error in fav_errors" class="pl-2">{{ error }}</div>
+        </ul>
+      </div>
+    </div>
+
     <div class="card-group">
         <div v-for="car in favourite_cars" class="col-4 mb-4 pl-0">
             <div class="card">
@@ -731,7 +741,11 @@ const Users = {
                 self.errors = jsonResponse.errors
                 self.has_error = true
                 console.log(jsonResponse.errors)
-            } else {
+            }  else if (jsonResponse.hasOwnProperty("fav_errors")) {
+                self.has_fav_errors = true
+                self.fav_errors = jsonResponse.fav_errors
+                console.log(jsonResponse.fav_errors)
+            }  else {
                 console.log(jsonResponse.favourite_cars);
                 self.favourite_cars = jsonResponse.favourite_cars
                 self.has_error = false
@@ -744,7 +758,9 @@ const Users = {
     data: function(){
         return {
           user: "",
+          has_fav_errors: false,
           has_error: false,
+          fav_errors: [],
           errors: [],
           favourite_cars: []
         }
@@ -801,7 +817,7 @@ app.component('app-header', {
               </ul>
               <ul class="navbar-nav">
                 <li class="nav-item">
-                    <router-link to="/auth/logout" class="nav-link">Logout</router-link>
+                    <router-link to="/logout" class="nav-link">Logout</router-link>
                 </li>
               </ul>
             </div>
@@ -811,7 +827,7 @@ app.component('app-header', {
                   <router-link to="/register" class="nav-link">Register</router-link>
                 </li>
                 <li class="nav-item">
-                    <router-link to="/auth/login" class="nav-link">Login</router-link>
+                    <router-link to="/login" class="nav-link">Login</router-link>
                 </li>
               </ul>
           </div>
@@ -897,7 +913,7 @@ const router = VueRouter.createRouter({
               if (current_user) {
                   next();
               } else {
-                  next('/auth/login');
+                  next('/login');
               }
           },
         },
@@ -909,7 +925,7 @@ const router = VueRouter.createRouter({
               if (current_user) {
                   next();
               } else {
-                  next('/auth/login');
+                  next('/login');
               }
           },
         },
@@ -922,7 +938,7 @@ const router = VueRouter.createRouter({
               if (current_user) {
                   next();
               } else {
-                  next('/auth/login');
+                  next('/login');
               }
           },
         },
@@ -934,12 +950,12 @@ const router = VueRouter.createRouter({
               if (current_user) {
                   next();
               } else {
-                  next('/auth/login');
+                  next('/login');
               }
           },
         },
         { 
-            path: '/auth/login', 
+            path: '/login', 
             component: login,
             beforeEnter(to, from, next) {
               let current_user = (localStorage.current_user);
@@ -951,14 +967,14 @@ const router = VueRouter.createRouter({
             },
         },
         {
-            path: '/auth/logout',
+            path: '/logout',
             component: logout,  
             beforeEnter(to, from, next) {
                 let current_user = (localStorage.current_user);
                 if (current_user) {
                     next();
                 } else {
-                    next('/auth/login');
+                    next('/login');
                 }
             },
         },
