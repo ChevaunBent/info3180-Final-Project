@@ -531,12 +531,12 @@ const view_car = {
                   <div class="card-text d-flex align-items-center me-4">
                     <div class="">
                       <p class="font-weight-bold col pl-0"><span class="text-muted">Color</span> <span class="ml-2">{{ car.colour }}</span> </p> 
-                      <p class="font-weight-bold col pl-0"><span class="text-muted">Color</span> <span class="ml-2">{{ car.colour }}</span> </p> 
+                      <p class="font-weight-bold col pl-0"><span class="text-muted">Price</span> <span class="ml-2">'$'{{ car.price }}</span> </p> 
                       
                     </div>
                     <div>
-                      <p class="font-weight-bold col pl-0"><span class="text-muted">Color</span> <span class="ml-2">{{ car.colour }}</span> </p> 
-                      <p class="font-weight-bold col pl-0"><span class="text-muted">Color</span> <span class="ml-2">{{ car.colour }}</span> </p> 
+                      <p class="font-weight-bold col pl-0"><span class="text-muted">Body Type</span> <span class="ml-2">{{ car.car_type }}</span> </p> 
+                      <p class="font-weight-bold col pl-0"><span class="text-muted">Transmission</span> <span class="ml-2">{{ car.transmission }}</span> </p> 
                     </div>
                   </div>
                 </div><!--/.row-->

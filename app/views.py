@@ -228,6 +228,9 @@ def search(current_user):
 
     cars = []
 
+    if not make and not model:
+      cars = Cars.query.order_by(Cars.id.desc()).limit(3)
+
     if make and model:
       cars = Cars.query.filter_by(make=make, model=model)
     elif make:
