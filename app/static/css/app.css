@@ -46,3 +46,37 @@ footer  {
   position: absolute;
   bottom: 0;
 }
+
+.avatar-rounded {
+  border-radius: 100em !important;
+}
+
+.avatar {
+  position: relative;
+  width: 15rem;
+  height: 15rem;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #656d77;
+  text-align: center;
+  text-transform: uppercase;
+  vertical-align: bottom;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  background: #f0f2f6 no-repeat center/cover;
+  border-radius: 4px;
+}
+
+
+.favourite_button {
+  background-color: white;
+}
+
+.favourite_button:hover {
+  background-color: #ff2825;
+  color: white !important;
+}

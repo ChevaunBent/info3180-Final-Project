@@ -259,24 +259,58 @@ def search(current_user):
 @app.route('/api/users/<user_id>', methods=['GET'])
 @token_required
 def users(current_user, user_id):   
-  print("ssssssssssssssssssssssssss", user)
   if request.method == "GET":
     user = Users.query.filter_by(id=user_id).first() 
     if not users: 
       return jsonify(errors=["User not found"])
 
     _user = {
-      'id': users.id,
-      'username': users.username,
-      'name': users.name,
-      'email': users.email,
-      'location': users.location,
-      'biography': users.biography,
-      'photo': users.photo,
-      'date_joined': users.date_joined,
+      'id': user.id,
+      'username': user.username,
+      'name': user.name,
+      'email': user.email,
+      'location': user.location,
+      'biography': user.biography,
+      'photo': user.photo,
+      'date_joined': user.date_joined.strftime('%b %d, %Y'),
     }
     return  jsonify(user=_user)
     
+
+@app.route('/api/users/<user_id>/favourites', methods=['GET'])
+@token_required
+def user_favourites(current_user, user_id):   
+  if request.method == "GET":
+    user = Users.query.filter_by(id=user_id).first() 
+   
+    if not user: 
+      return jsonify(errors=["User not found"])
+
+    favourite_cars = Favourites.query.filter_by(user_id=user_id).all()
+
+    if favourite_cars:
+      cars_obj = []
+      for favourite_car in favourite_cars:
+        car = Cars.query.filter_by(id=favourite_car.car_id).first()
+        _car = {
+          'id': car.id,
+          'year': car.year,
+          'make': car.make,
+          'model': car.model,
+          'colour': car.colour,
+          'description': car.description,
+          'transmission': car.transmission,
+          'car_type': car.car_type,
+          'price': car.price,
+          'photo': car.photo,
+          'user_id': car.user_id,
+        }
+        cars_obj.append(_car)
+    else:
+      return jsonify(errors=["No favourites found"])
+    return  jsonify(favourite_cars=cars_obj)
+    
+
 def form_errors(form):
   error_messages = []
   for field, errors in form.errors.items():

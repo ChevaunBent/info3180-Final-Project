@@ -253,7 +253,7 @@ const Explore = {
                   <div class="card-img-top img-responsive img-responsive-16by9" v-bind:style="{ backgroundImage: 'url( ../static/uploads/' + car.photo + ')' }"></div>
                   <div class="card-body">
                     <div class="header row m-0">
-                        <p class="card-title">Card with top image</p>
+                        <p class="card-title">{{ car.year }} {{ car.make }}</p>
                         <div class="bg-success text-white badge ms-auto">
                             <svg xmlns="http://www.w3.org/2000/svg" class="icon me-2 text-muted" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="#ffffff" fill="none" stroke-linecap="round" stroke-linejoin="round">
                               <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
@@ -373,7 +373,7 @@ const Home = {
 const new_car = {
     name: 'cars-new',
     template: `
-    <h1 class="page-header mb-3 py-5"><strong>Add New Car</strong></h1>
+    <h1 class="page-header mb-3 py-5 font-weight-bold">Add New Car</h1>
     <!--Displays Messages-->
     <div class="form_response">
       <div>
@@ -535,7 +535,7 @@ const view_car = {
                 <div class="">
                   <div class="d-flex">
                     <a href="#" class="btn btn-primary">Email Owner</a>
-                    <a v-on:click="favourite(car)" class="btn btn-circle ms-auto btn-secondary">
+                    <a v-on:click="favourite(car)" class="btn btn-circle ms-auto btn-secondary favourite_button">
                     <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-heart" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                        <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                        <path d="M19.5 13.572l-7.5 7.428l-7.5 -7.428m0 0a5 5 0 1 1 7.5 -6.566a5 5 0 1 1 7.5 6.572"></path>
@@ -623,15 +623,68 @@ const Users = {
   template: 
   /*html*/
   `
-  <div>
-    <div class="card row" style="width:100%">
-        <div class="card-body row profile-haeder" style="padding: 0;" >
-            <strong><label>{{ user}}</label></strong>
-          <div id="favourites" class="col-sm-3" style="padding-left:  0; padding-right:  0;">
-            <p>To be completed</p>
-          </div>
+  <div class="col-12 py-5">
+    <!--Displays Messages-->
+    <div class="form_response">
+      <div>
+        <ul v-if="has_error" class="alert alert-danger pl-4">
+          <div v-for="error in errors" class="pl-2">{{ error }}</div>
+        </ul>
+      </div>
+    </div>
+
+    <div class="card">  
+      <div class="row">
+        <div class="col-6 d-flex justify-content-center align-items-center">
+          <span class="avatar avatar-sm avatar-rounded" v-bind:style="{ backgroundImage: 'url( ../static/uploads/' + user.photo + ')' }"></span>
+        </div>
+        <div class="col">
+          <div class="card-body">
+            <h3 class="card-title font-weight-bold">{{ user.name }} </h3>
+            <h4 class="font-weight-bold text-muted">@{{ user.username }}</h4> 
+            
+            <div class="mt-4">{{ user.biography }}</div>
+            <div class="row m-0 mt-4 mb-4">
+              <div class="card-text d-flex align-items-center me-4">
+                <div class="">
+                  <p class="font-weight-bold col pl-0"><span class="text-muted">Email</span> <span class="ml-4">{{ user.email }}</span> </p> 
+                  <p class="font-weight-bold col pl-0"><span class="text-muted">Location</span> <span class="ml-2">{{ user.location }}</span> </p> 
+                  <p class="font-weight-bold col pl-0"><span class="text-muted">Joined</span> <span class="ml-4">{{ user.date_joined }}</span> </p> 
+                </div>
+              </div>
+            </div><!--/.row-->
+          </div><!--/.card-body-->
+        </div>
+      </div>
+    </div><!--/.card-->
+
+
+    <h4 class="mb-3 mt-5 page-header">Cars Favourited</h4>
+    <div class="card-group">
+        <div v-for="car in favourite_cars" class="col-4 mb-4 pl-0">
+            <div class="card">
+              <div class="card-img-top img-responsive img-responsive-16by9" v-bind:style="{ backgroundImage: 'url( ../static/uploads/' + car.photo + ')' }"></div>
+              <div class="card-body">
+                <div class="header row m-0">
+                    <p class="card-title">{{ car.year }} {{ car.make }}</p>
+                    <div class="bg-success text-white badge ms-auto">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon me-2 text-muted" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="#ffffff" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                          <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                          <path d="M11 3l9 9a1.5 1.5 0 0 1 0 2l-6 6a1.5 1.5 0 0 1 -2 0l-9 -9v-4a4 4 0 0 1 4 -4h4" />
+                          <circle cx="9" cy="9" r="2" />
+                        </svg>
+                        {{ car.price }}
+                    </div>
+                </div>
+                <p>{{ car.model }}</p>
+                <div class="card-text mt-4">
+                  <router-link :to="{ name: 'view_car', params: { car_id: car.id } }" class="btn btn-primary w-100">View car details</router-link>
+                </div>
+              </div>
+            </div>
         </div>
     </div>
+
   </div>
   `,
     created() {
@@ -653,8 +706,34 @@ const Users = {
                 self.has_error = true
                 console.log(jsonResponse.errors)
             } else {
-                console.log(jsonResponse);
+                console.log(jsonResponse.user);
                 self.user = jsonResponse.user
+                self.has_error = false
+            }
+        })
+        .catch(function(error){
+          console.log(error)
+        });
+
+
+        fetch(`/api/users/${self.$route.params.user_id}/favourites`, {
+        method: "GET",
+        headers: {
+          "Authorization": `Bearer ${JSON.parse(localStorage.current_user).token}`
+        },
+        credentials: 'same-origin',
+        })
+        .then(function(response){
+            return response.json();
+        })
+        .then(function(jsonResponse){
+            if (jsonResponse.hasOwnProperty("errors")) {
+                self.errors = jsonResponse.errors
+                self.has_error = true
+                console.log(jsonResponse.errors)
+            } else {
+                console.log(jsonResponse.favourite_cars);
+                self.favourite_cars = jsonResponse.favourite_cars
                 self.has_error = false
             }
         })
@@ -666,6 +745,8 @@ const Users = {
         return {
           user: "",
           has_error: false,
+          errors: [],
+          favourite_cars: []
         }
     }
 };
@@ -704,17 +785,14 @@ app.component('app-header', {
         </button>
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
           <ul class="navbar-nav mr-auto">
-            <li class="nav-item active">
-              <router-link to="/" class="nav-link">Home</router-link>
-            </li>
-            <li class="nav-item active" v-if="authenticated_user">
-            <router-link class="nav-link" :to="{name: 'users', params: {user_id: current_user_id}}">My Profile</router-link>
+            <li class="nav-item" v-if="authenticated_user">
+              <router-link to="/cars/new" class="nav-link">Add Car</router-link>
             </li>
             <li class="nav-item" v-if="authenticated_user">
               <router-link to="/explore" class="nav-link">Explore</router-link>
             </li>
             <li class="nav-item" v-if="authenticated_user">
-              <router-link to="/cars/new" class="nav-link">Add Car</router-link>
+                <router-link class="nav-link" :to="{name: 'users', params: {user_id: current_user_id}}">My Profile</router-link>
             </li>
           </ul>
             <div v-if ="authenticated_user">
